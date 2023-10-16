@@ -1,0 +1,230 @@
+----- Downloading images -----
+
+You can use pull with the docker:// uri to reference OCI images served from an OCI registry. In this case pull does not just download an image file. OCI images are stored in layers, so pull must also combine those layers into a usable Apptainer file.
+
+$ apptainer pull docker://alpine
+
+You can also use the build command to download pre-built images from an external resource. When using build you must specify a name for your container like so:
+
+$ apptainer build alpine.sif docker://alpine
+
+
+
+----- Interacting with images -----
+
+You can interact with images in several ways, each of which can accept image URIs in addition to a local image path.
+
+As an example, the following command will pull a lolcow_latest.sif image from ghcr.io:
+
+$ apptainer pull docker://ghcr.io/apptainer/lolcow
+
+
+--- Shell ---
+
+The shell command allows you to spawn a new shell within your container and interact with it as though it were a virtual machine.
+
+$ apptainer shell lolcow_latest.sif
+
+Apptainer lolcow_latest.sif:~>
+
+Once inside of an Apptainer container, you are the same user as you are on the host system.
+
+Apptainer lolcow_latest.sif:~> whoami
+david
+
+Apptainer lolcow_latest.sif:~> id
+uid=1000(david) gid=1000(david) groups=1000(david),65534(nfsnobody)
+
+shell also works with the docker://, oras://, library://, and shub:// URIs. This creates an ephemeral container that disappears when the shell is exited.
+
+$ apptainer shell docker://ghcr.io/apptainer/lolcow
+
+--- Executing Commands ---
+
+The exec command allows you to execute a custom command within a container by specifying the image file. For instance, to execute the cowsay program within the lolcow_latest.sif container:
+
+$ apptainer exec lolcow_latest.sif cowsay moo
+ _____
+< moo >
+ -----
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+exec also works with the docker://, oras://, library://, and shub:// URIs. This creates an ephemeral container that executes a command and disappears.
+
+$ apptainer exec docker://ghcr.io/apptainer/lolcow cowsay 'Fresh from the internet'
+ _________________________
+< Fresh from the internet >
+ -------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+
+--- Running a container ---
+
+Apptainer containers contain runscripts. These are user-defined scripts that define the actions a container should perform when someone runs it. The runscript can be triggered with the run command, or simply by calling the container as though it were an executable.
+
+$ apptainer run lolcow_latest.sif
+______________________________
+< Mon Aug 16 13:01:55 CDT 2021 >
+ ------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+$ ./lolcow_latest.sif
+______________________________
+< Mon Aug 16 13:12:50 CDT 2021 >
+ ------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+run also works with the docker://, oras://, library://, and shub:// URIs. This creates an ephemeral container that runs and then disappears.
+
+$ apptainer run docker://ghcr.io/apptainer/lolcow
+______________________________
+< Mon Aug 16 13:12:33 CDT 2021 >
+ ------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+
+
+--- Arguments to run ---
+
+You can pass arguments to the runscript of a container, if it accepts them. For example, the default runscript of the docker://alpine container passes any arguments to a shell. We can ask the container to run echo command in this shell as follows:
+
+$ apptainer run docker://alpine echo "hello"
+
+hello
+
+Because Apptainer runscripts are evaluated shell scripts, arguments can behave slightly differently than in Docker/OCI runtimes, if they contain expressions that have special meaning to the shell. Here is an illustrative example:
+
+$ docker run -it --rm alpine echo "\$HOSTNAME"
+$HOSTNAME
+
+$ apptainer run docker://alpine echo "\$HOSTNAME"
+p700
+
+$ apptainer run docker://alpine echo "\\\$HOSTNAME"
+$HOSTNAME
+
+To replicate Docker/OCI behavior, you may need additional escaping or quoting of arguments.
+
+Unlike the run command, the exec command replicates the Docker/OCI behavior, as it calls the specified executable directly:
+
+$ apptainer exec docker://alpine echo "\$HOSTNAME"
+$HOSTNAME
+
+$ apptainer exec docker://alpine echo "\\\$HOSTNAME"
+\$HOSTNAME
+
+
+
+----- Working with Files -----
+
+Files on the host are reachable from within the container:
+
+$ echo "Hello from inside the container" > $HOME/hostfile.txt
+
+$ apptainer exec lolcow_latest.sif cat $HOME/hostfile.txt
+
+Hello from inside the container
+
+This example works because hostfile.txt exists in the user’s home directory. By default, Apptainer bind mounts /home/$USER, /tmp, and $PWD into your container at runtime.
+
+You can specify additional directories to bind mount into your container with the --bind option. In this example, the data directory on the host system is bind mounted to the /mnt directory inside the container.
+
+$ echo "Drink milk (and never eat hamburgers)." > /data/cow_advice.txt
+
+$ apptainer exec --bind /data:/mnt lolcow_latest.sif cat /mnt/cow_advice.txt
+Drink milk (and never eat hamburgers).
+
+Pipes and redirects also work with Apptainer commands, just like they do with normal Linux commands:
+
+$ cat /data/cow_advice.txt | apptainer exec lolcow_latest.sif cowsay
+ ________________________________________
+< Drink milk (and never eat hamburgers). >
+ ----------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+(///!\\\ No /data on this machine but you get the idea ///!\\\)
+
+
+
+
+----- Building images from scratch -----
+
+Apptainer produces immutable images in the Singularity Image File (SIF) format. This ensures reproducible and verifiable images and allows for many extra benefits such as the ability to sign and verify your containers.
+
+However, during testing and debugging you may want an image format that is writable. This way you can shell into the image and install software and dependencies until you are satisfied that your container will fulfill your needs. For these scenarios, Apptainer also supports the sandbox format (which is really just a directory).
+
+--- Sandbox Directories ---
+
+To build into a sandbox (container in a directory) use the build --sandbox command and option:
+
+$ apptainer build --sandbox ubuntu/ docker://ubuntu
+
+This command creates a directory called ubuntu/ with an entire Ubuntu Operating System and some Apptainer metadata in your current working directory.
+
+You can use commands like shell, exec , and run with this directory just as you would with an Apptainer image. If you pass the --writable option when you use your container, you can also write files within the sandbox directory (provided you have the permissions to do so).
+
+$ apptainer exec --writable ubuntu touch /foo
+
+$ apptainer exec ubuntu/ ls /foo
+/foo
+
+--- Converting images from one format to another ---
+
+The build command allows you to build a new container from an existing container. This means that you can use it to convert a container from one format to another. For instance, if you have already created a sandbox (directory) and want to convert it to the Singularity Image Format you can do so:
+
+$ apptainer build new.sif sandbox
+
+Doing so may break reproducibility if you have altered your sandbox outside of the context of a definition file, so you are advised to exercise care.
+
+
+--- Apptainer Definition Files ---
+
+For a reproducible, verifiable and production-quality container, it is recommended that you build a SIF file using an Apptainer definition file. This also makes it easy to add files, environment variables, and install custom software. You can start with base images from Docker Hub and use images directly from official repositories such as Ubuntu, Debian, CentOS, Arch, and BusyBox.
+
+A definition file has a header and a body. The header determines the base container to begin with, and the body is further divided into sections that perform tasks such as software installation, environment setup, and copying files into the container from host system.
+
+Here is an example of a definition file in lolcow.def
+
+To build a container from this definition file (assuming it is a file named lolcow.def), you would call build as follows:
+
+$ apptainer build lolcow.sif lolcow.def
+
+In this example, the header tells Apptainer to use a base Ubuntu 22.04 image from the Container Library. The other sections in this definition file are as follows:
+
+    The %post section is executed within the container at build time, after the base OS has been installed. The %post section is therefore the place to perform installations of new libraries and applications.
+
+    The %environment section defines environment variables that will be available to the container at runtime.
+
+    The %runscript section defines actions for the container to take when it is executed. (These commands will therefore not be run at build time.)
+
+    And finally, the %labels section allows for custom metadata to be added to the container.
+
+This is a very small example of the things that you can do with a definition file. You can also use an existing container on your host system as a base.
+
+This quickstart document just scratches the surface of all of the things you can do with Apptainer!
+
+If you need additional help or support, see https://apptainer.org/help.
