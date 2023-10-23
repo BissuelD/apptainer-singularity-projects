@@ -1,0 +1,61 @@
+Bootstrap: docker
+From: debian:stable-slim
+Stage: devel
+
+%files
+    $HOME/Documents/softs/sourcecodes/vasp.6.3.2.tar.gz /home/vasp.6.3.2.tar.gz
+    /usr/include/fftw3.f /usr/include/fftw3.f
+
+%post
+    apt-get -y update
+    apt-get install -y build-essential gfortran libopenmpi-dev openmpi-bin libfftw3-bin libopenblas-dev libscalapack-openmpi-dev rsync --no-install-recommends
+    cd /home
+    tar -xzf vasp.6.3.2.tar.gz
+    rm vasp.6.3.2.tar.gz
+    mkdir /home/vasp
+    mv /home/vasp.6.3.2/vasp.6.3.2/* /home/vasp
+    rm -r /home/vasp.6.3.2
+    cd /home/vasp
+    make veryclean
+    cp arch/makefile.include.gnu_omp makefile.include
+#    sed -i 's/\/path\/to\/your\/.*\/installation/\/usr\/lib\/x86_64-linux-gnu/g' makefile.include
+#    sed -i 's/\/lib / /g' makefile.include
+#    sed -i 's/lscalapack/lscalapack-openmpi/g' makefile.include
+    sed -i 's/-lfftw3 -lfftw3_omp/-l:libfftw3.so.3 -l:libfftw3_omp.so.3/g' makefile.include
+#    sed -i 's/-lfftw3/-l:libfftw3.so.3/g' makefile.include
+    ls /usr/lib/x86_64-linux-gnu/*scalapack*
+    ls /usr/lib/x86_64-linux-gnu/*fftw*
+    ls /usr/lib/x86_64-linux-gnu/*openblas*
+    cat makefile.include
+    ls /usr/include
+    make DEPS=1 -j4 std
+
+Bootstrap: docker
+From: debian:stable-slim
+Stage: final
+
+%files from devel
+    /home/vasp /home/vasp
+
+#%environment
+#    export VASP_DIR=/home/vasp
+
+%post
+#    apt-get -y update
+#    apt-get install -y build-essential gfortran openmpi-bin libopenmpi-dev libscalapack-openmpi-dev libfftw3-double3 libopenblas-dev rsync --no-install-recommends
+    cd /home/vasp/bin
+    ln -s ./vasp_std /usr/local/bin/vasp_std
+
+%runscript
+    ls
+
+%test
+    cd /home/vasp
+#    make test
+
+%labels
+    Owner Vienna Ab-initio Simulation Package, Vienna University, G. Kresse, D. Vogtenhuber
+    Author dylan.bissuel@univ-lyon1.fr
+    Version v:6.3.2-patched
+    MyLabel vasp.6.3.2-patched
+    EntryPoint https://www.vasp.at/

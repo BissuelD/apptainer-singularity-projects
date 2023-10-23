@@ -2,7 +2,7 @@ Bootstrap: docker
 From: python:3.9-slim
 
 %files
-	./sourcecodes/deepmd-kit /home/app/dp
+	$HOME/Documents/softs/sourcecodes/deepmd-kit /home/app/dp
 
 %post
 	cd /home/app/dp
