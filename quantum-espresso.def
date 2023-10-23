@@ -1,0 +1,48 @@
+Bootstrap: docker
+From: debian:stable-slim
+Stage: devel
+
+%files
+    $HOME/Documents/softs/qe-7.2-ReleasePack.tar.gz /home/qe-7.2.tar.gz
+
+%post
+    apt-get -y update
+    apt-get install -y build-essential git wget gfortran openmpi-bin libopenmpi-dev ca-certificates  --no-install-recommends
+    cd /home
+    tar -xzf qe-7.2.tar.gz
+    rm qe-7.2.tar.gz
+    cd /home/qe-7.2
+    git config --global --add safe.directory /home/qe-7.2/external/lapack
+    ./configure
+    make all
+    rm -rf /home/qe-7.2/archive /home/qe-7.2/Doc
+
+Bootstrap: docker
+From: debian:stable-slim
+Stage: final
+
+%files from devel
+    /home/qe-7.2 /home/qe-7.2
+
+#%environment
+#    export QE_DIR=/home/qe-7.2
+
+%post
+    apt-get -y update
+    apt-get install -y build-essential gfortran openmpi-bin libopenmpi-dev --no-install-recommends
+    cd /home/qe-7.2/bin
+    for i in *; do ln -s $(readlink -f $i) /usr/local/bin/$i; done
+
+%runscript
+    ls
+
+%test
+    cd /home/qe-7.2/test-suite
+    make run-tests
+
+%labels
+    Owner CNR-IOM DEMOCRITOS National Simulation Center in Trieste 
+    Author dylan.bissuel@univ-lyon1.fr
+    Version v:7.2
+    MyLabel quantum-espresso-v-7.2
+    EntryPoint https://www.quantum-espresso.org/
