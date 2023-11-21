@@ -3,7 +3,7 @@ From: python:3.9-slim
 Stage: devel
 
 %files
-    /home/dbissuel/Documents/docker_projects/simple-adsorption-workflow/simple-adsorption-workflow /home/app
+    ../../simple-adsorption-workflow /home/app
 
 %post
     apt-get -y update
@@ -12,6 +12,7 @@ Stage: devel
     pip install --no-cache-dir -r requirements.txt
     tar xvf zeo++-0.3.tar
     rm -rf zeo++-0.3.tar
+    rm -rf /home/app/apptainer
     cd /home/app/zeo++-0.3/voro++/src
     make
     cd /home/app/zeo++-0.3
