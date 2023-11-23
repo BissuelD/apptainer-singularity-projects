@@ -1,5 +1,6 @@
 Bootstrap: localimage
-From: /gnu/store/id6kvfkmlwriagfj0068af2153y8f069-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
+From: /gnu/store/c2xq9p44b9klqrg5z5mmch44pywzh95k-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
+#From: /gnu/store/id6kvfkmlwriagfj0068af2153y8f069-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
 
 %files
     empty_file /etc/passwd # to remove warning about /etc/passwd
@@ -13,12 +14,12 @@ From: /gnu/store/id6kvfkmlwriagfj0068af2153y8f069-mylammps_mpi-bash-openmpi-squa
 %help
     This container embedds LAMMPS (2 July 2021 patch) with OpenMPI support.
     For more information about this image, please run "apptainer inspect <this-image>"
-    
+
     If you use "apptainer run <this-image>", the main executable "lmp_mpi" will be called.
     For more information about it, please use "apptainer run <this-image> -h"
     or "apptainer exec <this-image> lmp_mpi -h".
 
-    If you want to specify MPI number of processes, please use 
+    If you want to specify MPI number of processes, please use
     "apptainer exec <this-image> mpirun -np <N> lmp_mpi ...".
 
     You can also enter an interactive shell within the container with "apptainer shell <this-image>".
