@@ -6,8 +6,6 @@ Stage: devel
     $HOME/Documents/softs/sourcecodes/ParaView-5.12.0-RC1-MPI-Linux-Python3.10-x86_64.tar.gz /opt/ParaView-5.12.0-RC1-MPI-Linux-Python3.10-x86_64.tar.gz
 
 %post
-    #apt-get -y update
-    #apt-get install -y build-essential git wget gfortran openmpi-bin libopenmpi-dev ca-certificates  --no-install-recommends
     cd /opt
     tar -xzf ParaView-5.12.0-RC1-MPI-Linux-Python3.10-x86_64.tar.gz
     rm ParaView-5.12.0-RC1-MPI-Linux-Python3.10-x86_64.tar.gz
@@ -25,9 +23,6 @@ Stage: final
 %post
     cd /opt/ParaView-5.12.0-RC1-MPI-Linux-Python3.10-x86_64/bin
     for i in *; do ln -sf $(readlink -f $i) /usr/local/bin/$i; done
-    #mkdir -p /usr/lib/x86_64-linux-gnu/
-    cd /opt/ParaView-5.12.0-RC1-MPI-Linux-Python3.10-x86_64/lib
-    for i in *; do ln -sf $(readlink -f $i) /lib/$i; done
     apt-get -y update
     apt-get -y upgrade
     apt-get install -y      \
@@ -42,15 +37,6 @@ Stage: final
     apt-get install -y      \
         qt5dxcb-plugin      \
         --no-install-recommends
-    #apt-get install -y      \
-    #    apt-utils           \
-    #    build-essential
-    #apt-get install -y      \
-    #    libgomp1            \
-    #    libxcursor1         \
-    #    libx11-xcb-dev      \
-    #    libglu1-mesa-dev    \
-    #    --no-install-recommends
 
 %runscript
     /usr/local/bin/paraview
