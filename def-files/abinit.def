@@ -1,0 +1,115 @@
+Bootstrap: docker
+#From: debian:stable-slim
+From: python:3.9-slim
+Stage: devel
+
+%post
+    cd /opt
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get install -y      \
+        wget                \
+        ca-certificates     \
+        gfortran            \
+        mpi-default-dev     \
+        libopenmpi-dev      \
+        liblapack-dev       \
+        libblas-dev         \
+        libhdf5-dev         \
+        libnetcdf-dev       \
+        libnetcdff-dev      \
+        libpnetcdf-dev      \
+        libxc-dev           \
+        build-essential     \
+        --no-install-recommends
+    rm -rf /var/lib/apt/lists/*
+    wget    https://www.abinit.org/sites/default/files/packages/abinit-9.10.1.tar.gz    \
+            http://www.pseudo-dojo.org/pseudos/nc-sr_pbe_standard_psp8.tgz              \
+            https://www.abinit.org/ATOMICDATA/JTH-LDA-atomicdata.tar.gz                 \
+            https://www.abinit.org/ATOMICDATA/JTH-PBE-atomicdata.tar.gz
+    for i in ./*gz; do
+        tar xzf $i
+        rm $i
+    done
+    cd abinit-9.10.1
+    mkdir build && cd build
+    ../configure
+    make -j4
+    make install
+
+%test
+    /usr/local/bin/abinit -h
+    #cd /opt/abinit-9.10.1/build
+    #make tests_abirules
+    #make tests_buildsys
+    #make tests_libpaw
+
+Bootstrap: docker
+#From: debian:stable-slim
+From: python:3.9-slim
+Stage: final
+
+%files from devel
+    /usr/local/bin /usr/local/
+    /opt/pbe_s_sr /opt/pseudopotentials/pbe_s_sr
+    /opt/JTH-LDA-atomicdata-1.1 /opt/pseudopotentials/JTH-LDA-atomicdata-1.1
+    /opt/JTH-PBE-atomicdata-1.1 /opt/pseudopotentials/JTH-PBE-atomicdata-1.1
+
+%environment
+    export PSEUDOPOT_DIR="/opt/pseudopotentials"
+
+%post
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get install -y      \
+        gfortran            \
+        mpi-default-dev     \
+        libopenmpi-dev      \
+        liblapack-dev       \
+        libblas-dev         \
+        libhdf5-dev         \
+        libnetcdf-dev       \
+        libnetcdff-dev      \
+        libpnetcdf-dev      \
+        libxc-dev           \
+        --no-install-recommends
+    rm -rf /var/lib/apt/lists/*
+
+%runscript
+    /usr/local/bin/abinit
+
+%test
+    ls /usr/local/bin
+    /usr/local/bin/abinit -h
+
+%help
+    This container embedds ABINIT (version 9.10.1).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", the main executable "abinit" will be called.
+    For more information about it, please use "apptainer run <this-image> -h"
+    or "apptainer exec <this-image> abinit -h".
+
+    Note other ABINIT executables are also installed within the container, that can be
+    called through "apptainer exec <this-image> <executable-name> ...". List of executables :
+        abinit  abitk   aim anaddb  atdep   band2eps    conducti    cut3d   dummy_tests
+        fftprof fold2Bloch  ioprof  lapackprof  lruj    macroave    mrgddb  mrgdv   mrggkk
+        mrgscr  multibinit  optic   testtransposer  vdw_kernelgen
+
+    If you want to specify MPI number of processes, please use
+    "apptainer exec <this-image> mpirun -np <N> abinit ...".
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+    Finally, default peudopotentials provided on ABINIT website are available within the container
+    (see https://www.abinit.org/psp-tables) in /opt/pseudopotentials.
+    You can also directly access this directory through the $PSEUDOPOT_DIR environment varibale.
+
+%labels
+    Owner Copyright (c) 2004-2023 The ABINIT Group
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 9.10.1
+    MyLabel ABINIT v.9.10.1
+    EntryPoint https://www.abinit.org/
