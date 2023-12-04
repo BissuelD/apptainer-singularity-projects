@@ -3,21 +3,31 @@ From: debian:stable-slim
 Stage: devel
 
 %files
-    $HOME/Documents/softs/sourcecodes/vasp.6.3.2.tar.gz /home/vasp.6.3.2.tar.gz
+    $HOME/Documents/softs/sourcecodes/vasp.6.3.2.tar.gz /opt/vasp.6.3.2.tar.gz
+    $HOME/Documents/softs/VASP/POTFILES_2016 /opt/pseudopotentials
     ./includes/fftw3.f /usr/lib/x86_64-linux-gnu/fftw3.f
     #./includes/fftw3.h /usr/lib/x86_64-linux-gnu/fftw3.h
 
 
 %post
     apt-get -y update
-    apt-get install -y build-essential gfortran libopenmpi-dev openmpi-bin libfftw3-double3 libopenblas-dev libscalapack-openmpi-dev rsync --no-install-recommends
-    cd /home
+    apt-get install -y              \
+        build-essential             \
+        gfortran                    \
+        libopenmpi-dev              \
+        openmpi-bin                 \
+        libfftw3-double3            \
+        libopenblas-dev             \
+        libscalapack-openmpi-dev    \
+        rsync                       \
+        --no-install-recommends
+    cd /opt
     tar -xzf vasp.6.3.2.tar.gz
     rm vasp.6.3.2.tar.gz
-    mkdir /home/vasp
-    mv /home/vasp.6.3.2/vasp.6.3.2/* /home/vasp
-    rm -r /home/vasp.6.3.2
-    cd /home/vasp
+    mkdir /opt/vasp
+    mv /opt/vasp.6.3.2/vasp.6.3.2/* /opt/vasp
+    rm -r /opt/vasp.6.3.2
+    cd /opt/vasp
     make veryclean
     cp arch/makefile.include.gnu_omp makefile.include
     sed -i 's/\/path\/to\/your\/.*\/installation/\/usr\/lib\/x86_64-linux-gnu/g' makefile.include
@@ -26,32 +36,97 @@ Stage: devel
     sed -i 's/-lfftw3 -lfftw3_omp/-l:libfftw3.so.3 -l:libfftw3_omp.so.3/g' makefile.include
     sed -i 's/\/include//g' makefile.include
     make DEPS=1 -j4 all
+    cd /opt
+    mv /opt/vasp/bin/vasp_* /usr/local/bin/
+    rm -rf /opt/vasp
+
 
 Bootstrap: docker
 From: debian:stable-slim
 Stage: final
 
 %files from devel
-    /home/vasp /home/vasp
+    /usr/local/bin /usr/local/
+    /opt/pseudopotentials /opt/
 
-#%environment
-#    export VASP_DIR=/home/vasp
+%environment
+    echo "DDDD   I   SSSS   CCCC  L        A    I  M   M  EEEEE  RRRR"
+    echo "D   D  I  S      C      L       A A   I  MM MM  E      R   R"
+    echo "D   D  I   SSS   C      L       AAA   I  M M M  EEE    RRRR"
+    echo "D   D  I      S  C      L      A   A  I  M   M  E      R  R"
+    echo "DDDD   I  SSSS    CCCC  LLLLL  A   A  I  M   M  EEEEE  R   R"
+    echo ""
+    echo "YOU NEED A VASP LICENCE TO USE VASP. SEE"
+    echo "https://www.vasp.at/sign_in/registration_form/"
+    echo "FOR MORE DETAILS."
+    echo ""
+    echo ""
+    export OMP_NUM_THREADS=2
+    export PSEUDOPOT_DIR="/opt/pseudopotentials"
 
 %post
     apt-get -y update
-    apt-get install -y build-essential gfortran openmpi-bin libopenmpi-dev libscalapack-openmpi-dev libfftw3-double3 libopenblas-dev rsync --no-install-recommends
-    cd /home/vasp/bin
-    cp ./vasp_* /usr/local/bin
+    apt-get install -y              \
+        gfortran                    \
+        openmpi-bin                 \
+        libopenmpi-dev              \
+        libscalapack-openmpi-dev    \
+        libfftw3-double3            \
+        libopenblas-dev             \
+        rsync                       \
+        --no-install-recommends
+    # ^removed build-essential
 
 %runscript
-    ls
+    mpirun -np 4 /usr/local/bin/vasp_std
 
 %test
-    cd /home/vasp
-    ls 
-    #for i in */; do echo $i && ls $i; done
-    #chmod -R +w ./
-    #make test
+    ls /usr/local/bin/vasp_*
+    which mpirun
+
+%help
+    DDDD   I   SSSS   CCCC  L        A    I  M   M  EEEEE  RRRR
+    D   D  I  S      C      L       A A   I  MM MM  E      R   R
+    D   D  I   SSS   C      L       AAA   I  M M M  EEE    RRRR
+    D   D  I      S  C      L      A   A  I  M   M  E      R  R
+    DDDD   I  SSSS    CCCC  LLLLL  A   A  I  M   M  EEEEE  R   R
+
+    YOU NEED A VASP LICENCE TO USE VASP. SEE
+    https://www.vasp.at/sign_in/registration_form/
+    FOR MORE DETAILS.
+
+    This container embedds VASP (version 6.3.2 - patched to support lattice modification on the fly).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", the main executable "vasp_std" is called.
+    The default command uses 4 MPI processes, and is strictly equivalent to using :
+    "apptainer exec <this-image> mpirun -np 4 vasp_std"
+
+    If you want to specify MPI number of processes, please use
+    "apptainer exec <this-image> mpirun -np <N_MPI> vasp_std ...".
+
+    Note other VASP executables are also installed within the container, that can be called through
+    "apptainer exec <this-image> <executable-name> ..."
+    or
+    "apptainer exec <this-image> mpirun -np <N_MPI> <executable-name> ..."
+    List of executables available:
+        vasp_std    vasp_gam    vasp_ncl
+
+    By default, this container supports hyperthreading (ie. handling multiple tasks simultaneously
+    with a single processor core) with OpenMP ($OMP_NUM_THREADS=2). You can overwrite this behaviour
+    using the "--env" flag:
+    "apptainer run --env OMP_NUM_THREADS=<N> <this-image>"
+    or
+    "apptainer exec --env OMP_NUM_THREADS=<N> <this-image> mpirun -np <N_MPI> <executable-name>"
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+    Finally, default peudopotentials provided with VASP are available within the container
+    in /opt/pseudopotentials.
+    You can also directly access this directory through the $PSEUDOPOT_DIR environment varibale.
+
 
 %labels
     Owner Vienna Ab-initio Simulation Package, Vienna University, G. Kresse, D. Vogtenhuber
