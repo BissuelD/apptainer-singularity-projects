@@ -1,0 +1,56 @@
+Bootstrap: docker
+From: debian:stable-slim
+Stage: final
+
+%files
+    $HOME/Documents/softs/sourcecodes/VESTA-gtk3 /opt/VESTA-gtk3
+
+%environment
+
+%post
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get install -y      \
+        libglu1-mesa-dev    \
+        libgtk-3-dev       \
+        libgomp1            \
+        --no-install-recommends
+    ln -sf /opt/VESTA-gtk3/VESTA /usr/local/bin/VESTA
+
+%runscript
+    /usr/local/bin/VESTA
+
+%test
+    /opt/VESTA-gtk3/VESTA
+
+%help
+    This container embedds VESTA (version 3.5.8).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    As VESTA is a visualization tools, it requires additionnal information
+    to successfully use your graphical ressources through the $DISPLAY
+    environment variable. As such, you should call the present image as :
+    $ apptainer run <OPTIONS> \
+      --env DISPLAY=$(w -h $USER | awk '$2 ~ /:[0-9.]*/{print $2}') \
+      <this-image>
+    
+    If you want to build a script which automatizes this graphical ressources
+    management, you can use something like the following command.
+    
+    cat > my-vesta-script.sh << 'EOF'
+        export HOST_DISPLAY=$(w -h $USER | awk '$2 ~ /:[0-9.]*/{print $2}')
+        apptainer run <OPTIONS> \
+            --env DISPLAY=$HOST_DISPLAY \
+            <path-to-this-image>/<this-image>
+    EOF
+    
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+%labels
+    Owner Copyright (C) 2006-2021, Koichi Momma and Fujio Izumi
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 3.5.8
+    MyLabel VESTA-version-3.5.8
+    EntryPoint https://jp-minerals.org/vesta/en/
