@@ -30,17 +30,16 @@ Stage: final
     As VESTA is a visualization tools, it requires additionnal information
     to successfully use your graphical ressources through the $DISPLAY
     environment variable. As such, you should call the present image as :
-    $ apptainer run <OPTIONS> \
-      --env DISPLAY=$(w -h $USER | awk '$2 ~ /:[0-9.]*/{print $2}') \
-      <this-image>
+    $ apptainer run <OPTIONS>  \
+        --env DISPLAY=$DISPLAY \
+        <this-image>
     
     If you want to build a script which automatizes this graphical ressources
     management, you can use something like the following command.
     
     cat > my-vesta-script.sh << 'EOF'
-        export HOST_DISPLAY=$(w -h $USER | awk '$2 ~ /:[0-9.]*/{print $2}')
-        apptainer run <OPTIONS> \
-            --env DISPLAY=$HOST_DISPLAY \
+        apptainer run <OPTIONS>    \
+            --env DISPLAY=$DISPLAY \
             <path-to-this-image>/<this-image>
     EOF
     
