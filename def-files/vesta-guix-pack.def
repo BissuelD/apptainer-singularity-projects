@@ -20,34 +20,21 @@ Stage: devel
     /gnu /
 
 %environment
+    export XDG_DATA_HOME="/gnu/store/6bf456im4r7mq8xsfif29kbbg89q4vin-profile/share"
+    export XDG_DATA_DIRS="/gnu/store/6bf456im4r7mq8xsfif29kbbg89q4vin-profile/share"
 
 %post
     ln -sf /gnu/store/kr29a3dk9d71cv9w1nzd925ai53gcc59-myvesta-3.5.8/bin/VESTA /usr/local/bin/VESTA
-    # TODO
-    # CORRECT ERROR MESSAGES
-    """
-    Apptainer> VESTA
-
-    (VESTA-gui:18): dbind-WARNING **: 11:02:49.635: Couldn't connect to accessibility bus: Failed to connect to socket /run/user/1000/at-spi/bus: No such file or directory
-    Gtk-Message: 11:02:50.125: Failed to load module \"canberra-gtk-module\"
-    Gtk-Message: 11:02:50.136: Failed to load module \"canberra-gtk-module\"
-
-    (VESTA-gui:18): Gtk-WARNING **: 11:02:50.663: Could not load a pixbuf from /org/gtk/libgtk/theme/Adwaita/assets/bullet-symbolic.svg.
-    This may indicate that pixbuf loaders or the mime database could not be found.
-
-    (VESTA-gui:18): Gtk-CRITICAL **: 11:02:50.921: gtk_box_gadget_distribute: assertion 'size >= 0' failed in GtkNotebook
-    **
-    Gtk:ERROR:../gtk+-3.24.37/gtk/gtkiconhelper.c:495:ensure_surface_for_gicon: assertion failed (error == NULL): Failed to load /org/gtk/libgtk/icons/16x16/status/image-missing.png: Unrecognized image file format (gdk-pixbuf-error-quark, 3)
-    Bail out! Gtk:ERROR:../gtk+-3.24.37/gtk/gtkiconhelper.c:495:ensure_surface_for_gicon: assertion failed (error == NULL): Failed to load /org/gtk/libgtk/icons/16x16/status/image-missing.png: Unrecognized image file format (gdk-pixbuf-error-quark, 3)
-    """
+    /gnu/store/qfkkb8ig88gxiaipil8qk459sdvqcakd-shared-mime-info-1.15/bin/update-mime-database /gnu/store/6bf456im4r7mq8xsfif29kbbg89q4vin-profile/share/mime
+    /gnu/store/05iaczwqfwcxd6v32bcplg1l8lfzrq6h-gdk-pixbuf-2.42.8/bin/gdk-pixbuf-query-loaders
     
 
 %runscript
     /usr/local/bin/VESTA
 
 %test
-    ls /gnu/store
-    #/gnu/store/kr29a3dk9d71cv9w1nzd925ai53gcc59-myvesta-3.5.8/bin/VESTA
+    echo "This test may not fully succeed because of the $DISPLAY environment variable."
+    /gnu/store/kr29a3dk9d71cv9w1nzd925ai53gcc59-myvesta-3.5.8/bin/VESTA
 
 %help
     This container embedds VESTA (version 3.5.8).
