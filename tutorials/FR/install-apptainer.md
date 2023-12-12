@@ -6,7 +6,7 @@ Le logiciel fonctionne sur toute distribution Linux moderne ; il ne tourne pas d
 
 ## Installation de paquets Ubuntu
 
-TL; DR
+### TL; DR Commande en une ligne
 Les commandes à lancer pour l'installation des paquets Ubuntu sont les suivantes :
 ```
 sudo apt update 
@@ -16,6 +16,7 @@ sudo apt update
 sudo apt install -y apptainer
 ```
 
+### Détail des étapes
 Pour installer directement les paquets Ubuntu pré-construits destinés aux architectures `amd64` et `arm64`, il faut pouvoir accéder aux *archives de paquets personnels* (Personal Package Archive - PPA) d'Apptainer.
 
 Dans un premier temps, il faut donc s'assurer d'avoir accès à la commande `add-apt-repository` :
@@ -32,7 +33,8 @@ sudo apt install -y apptainer
 ```
 
 ##  Installation de paquets Debian
-TL; DR
+
+### TL; DR Commande en une ligne
 Les commandes à lancer pour l'installation des paquets Debian sont les suivantes :
 ```
 sudo apt update
@@ -42,6 +44,7 @@ wget https://github.com/apptainer/apptainer/releases/download/v1.2.5/apptainer_1
 sudo apt install -y ./apptainer_1.2.5_amd64.deb
 ```
 
+### Détail des étapes
 Pour installer les paquets Debian pré-construits uniquement destinés aux architectures `amd64`, il faut accéder au dépôt GitHub contenant le paquet en installant `wget` :
 ```
 sudo apt update
