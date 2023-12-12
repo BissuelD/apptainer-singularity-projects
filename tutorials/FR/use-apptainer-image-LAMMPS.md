@@ -12,13 +12,13 @@ mkdir -p $HOME/apptainer-images
 mv ./lammps-mpi-voro++-from-guix.sif $HOME/apptainer-images/lammps.sif
 ```
 
-## TL; DR Commande en une ligne
+## Comment interagir avec l'image Apptainer
 Pour les personnes pressées, voici comment lancer un calcul LAMMPS parallèle en utilisant l'image de conteneur (téléchargée au préalable et située à `$HOME/apptainer-images/lammps.sif`). Dans le cas où le répertoire courant contient les fichiers d'entrée nécessaires pour LAMMPS :
 ```
 apptainer exec $HOME/apptainer-images/lammps.sif mpirun -np <N> lmp_mpi -in <input.lammps>
 ```
 
-## Comment ; interagir avec l'image Apptainer
+## Comment interagir avec l'image Apptainer
 
 ### Apptainer : cours accéléré
 Cette section s'adresse aux personnes n'ayant pas encore utilisé Apptainer.
