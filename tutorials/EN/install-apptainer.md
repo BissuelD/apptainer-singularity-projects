@@ -6,7 +6,7 @@ Apptainer works on any modern Linux distribution ; however, it is not compatible
 
 ## Install Ubuntu packages
 
-TL; DR
+### TL; DR One liner command
 You can run the following commands to directly install Ubuntu packages :
 ```
 sudo apt update 
@@ -16,6 +16,7 @@ sudo apt update
 sudo apt install -y apptainer
 ```
 
+### Step-by-step detail
 To install pre-built Ubuntu packages for `amd64` and `arm64` architectures, one needs to access Apptainer's *personal package archive* (PPA).
 
 First, run this to ensure access to the `add-apt-repository` command :
@@ -32,7 +33,7 @@ sudo apt install -y apptainer
 ```
 
 ##  Install Debian packages
-TL; DR
+### TL; DR One liner command
 You can run the following commands to directly install Debian packages :
 ```
 sudo apt update
@@ -42,6 +43,7 @@ wget https://github.com/apptainer/apptainer/releases/download/v1.2.5/apptainer_1
 sudo apt install -y ./apptainer_1.2.5_amd64.deb
 ```
 
+### Step-by-step detail
 To install pre-built Debian packages only for `amd64` architectures, one needs to access Apptainer's GitHub repository using `wget` :
 ```
 sudo apt update
