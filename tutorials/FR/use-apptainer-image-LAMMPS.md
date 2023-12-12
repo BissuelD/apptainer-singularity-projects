@@ -13,6 +13,7 @@ mv ./lammps-mpi-voro++-from-guix.sif $HOME/apptainer-images/lammps.sif
 ```
 
 ## TL\; DR - commande en une ligne
+
 Pour les personnes pressées, voici comment lancer un calcul LAMMPS parallèle en utilisant l'image de conteneur (téléchargée au préalable et située à `$HOME/apptainer-images/lammps.sif`). Dans le cas où le répertoire courant contient les fichiers d'entrée nécessaires pour LAMMPS :
 ```
 apptainer exec $HOME/apptainer-images/lammps.sif mpirun -np <N> lmp_mpi -in <input.lammps>
