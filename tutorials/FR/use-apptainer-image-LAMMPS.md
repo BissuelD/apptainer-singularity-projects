@@ -1,4 +1,4 @@
-% Comment utiliser l'image Apptainer de LAMMPS ?
+# Comment utiliser l'image Apptainer de LAMMPS ?
 
 En préalable de ces explications, il est nécessaire d'avoir installé Apptainer sur votre machine ; voir [ce lien](https://www.apptainer-images.diamond.fr/install-apptainer/FR) pour plus de détails.
 
@@ -12,17 +12,15 @@ mkdir -p $HOME/apptainer-images
 mv ./lammps-mpi-voro++-from-guix.sif $HOME/apptainer-images/lammps.sif
 ```
 
-# TL; DR Commande en une ligne
-
+## TL; DR Commande en une ligne
 Pour les personnes pressées, voici comment lancer un calcul LAMMPS parallèle en utilisant l'image de conteneur (téléchargée au préalable et située à `$HOME/apptainer-images/lammps.sif`). Dans le cas où le répertoire courant contient les fichiers d'entrée nécessaires pour LAMMPS :
 ```
 apptainer exec $HOME/apptainer-images/lammps.sif mpirun -np <N> lmp_mpi -in <input.lammps>
 ```
 
-# Comment interagir avec l'image Apptainer
+## Comment interagir avec l'image Apptainer
 
-## Apptainer : cours accéléré
-
+### Apptainer : cours accéléré
 Cette section s'adresse aux personnes n'ayant pas encore utilisé Apptainer.
 
 La principale manière d'interagir avec l'image se fait en invoquant la commande `apptainer` suivie de différents arguments :
@@ -69,8 +67,7 @@ $ $HOME/apptainer-images/lammps.sif
 ```
 ce qui est strictement équivalent à `apptainer run $HOME/apptainer-images/lammps.sif`
 
-## Utiliser le conteneur LAMMPS
-
+### Utiliser le conteneur LAMMPS
 L'image `$HOME/apptainer-images/lammps.sif` embarque une version de LAMMPS supportant la parallélisation via **OpenMP** et **MPI**.
 
 Dans le cas où aucune conteneurisation ne serait utilisée, la commande typique ressemblerait à :
@@ -88,7 +85,7 @@ apptainer exec --env OMP_NUM_THREADS=2 $HOME/apptainer-images/lammps.sif mpirun 
 > Si rien n'est précisé, LAMMPS utilise par défaut un seul thread **OpenMP** `$OMP_NUM_THREADS=1` et répartit les processus **MPI** sur l'intégralité des cœurs disponibles.
 
 
-## Isolation partielle ou isolation totale
+### Isolation partielle ou isolation totale
 Par défaut, Apptainer n'isole pas totalement le conteneur du système de la machine hôte. Les chemins suivants de la machine hôte sont montés et accessibles par défaut dans le conteneur : `$HOME`, `$PWD` `/sys`, `/proc`, `/tmp`, `/var/tmp`, `/etc/resolve.conf` et `/etc/passwd`.
 
 Si l'on veut isoler le conteneur de la machine hôte, Apptainer propose différentes options (à adjoindre à `apptainer run`, `apptainer exec` ou `apptainer shell`) :
@@ -114,7 +111,7 @@ apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif
 ```
 dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire courant (`$PWD`).
 
-# Exercices
+## Exercices
 
 >[!Exercice 1]
 >
