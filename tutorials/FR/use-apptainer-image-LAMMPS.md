@@ -18,7 +18,7 @@ Pour les personnes pressées, voici comment lancer un calcul LAMMPS parallèle e
 apptainer exec $HOME/apptainer-images/lammps.sif mpirun -np <N> lmp_mpi -in <input.lammps>
 ```
 
-## Comment interagir avec l'image Apptainer
+## Comment ; interagir avec l'image Apptainer
 
 ### Apptainer : cours accéléré
 Cette section s'adresse aux personnes n'ayant pas encore utilisé Apptainer.
