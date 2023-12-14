@@ -6,7 +6,7 @@ Ce tutoriel détaille l'utilisation du l'image de conteneur du code LAMMPS tél�
 
 Pour plus d'informations sur les conteneurs Apptainer, veuillez consulter la [page dédiée](https://www.apptainer-images.diamond.fr/apptainer-containers/FR)
 
-Cette image est un fichier relocalisable et renommable, qu'il est recommandé de placer dans un répertoire dédié pour facilement la retrouver ; celui-ci peut-être quelconque, et dans le cadre de ce tutoriel nous assumerons que vous l'avez placé dans un répertoire nommé `$HOME/apptainer-images` :
+Cette image est un fichier relocalisable et renommable, qu'il est recommandé de placer dans un répertoire dédié pour facilement la retrouver ; celui-ci peut-être quelconque, et dans le cadre de ce tutoriel nous assumerons que vous l'avez placée dans un répertoire nommé `$HOME/apptainer-images` :
 ```
 mkdir -p $HOME/apptainer-images
 mv ./lammps-mpi-voro++-from-guix.sif $HOME/apptainer-images/lammps.sif
@@ -31,7 +31,7 @@ $ apptainer run $HOME/apptainer-images/lammps.sif # exécute le binaire lmp_mpi 
 ```
 Il est également possible de fournir des arguments à la commande par défaut en les ajoutant à la suite (ex. : `apptainer run $HOME/apptainer-images/lammps.sif -h`).
 
-* L'argument `exec` est similaire à l'argument `run` mais d'invoquer n'importe quelle commande dans le conteneur. Par exemple :
+* L'argument `exec` est similaire à l'argument `run` mais permet d'invoquer **n'importe quelle commande** dans le conteneur. Par exemple :
 ```
 $ apptainer exec $HOME/apptainer-images/lammps.sif sh -c pwd
 ```
@@ -47,8 +47,7 @@ Apptainer> lmp_mpi -h # fait apparaître le message d'aide de LAMMPS
 Apptainer> exit
 ```
 
->**Remarque**
->
+**Remarque**
 > En jouant avec les arguments `exec` et `shell`, vous remarquerez que le nombre de commandes accessibles depuis le conteneur est très restreint. En effet, le conteneur se limite le plus possible aux outils nécessaires à l'exécution de LAMMPS, pour des raisons de portabilité (taille de l'image) et de sécurité.
 
 * l'argument `run-help` permet d'afficher le message d'aide inclut dans l'image.
@@ -75,14 +74,13 @@ Dans le cas où aucune conteneurisation ne serait utilisée, la commande typique
 OMP_NUM_THREADS=2 mpirun -np 4 lmp_mpi -in in.file
 ```
 
-En utilisant ce conteneur, la même commande devient
+En utilisant ce conteneur, la même commande devient :
 ```
 apptainer exec --env OMP_NUM_THREADS=2 $HOME/apptainer-images/lammps.sif mpirun -np 4 lmp_mpi -in in.file
 ```
 
->**Remarque**
->
-> Si rien n'est précisé, LAMMPS utilise par défaut un seul thread **OpenMP** `$OMP_NUM_THREADS=1` et répartit les processus **MPI** sur l'intégralité des cœurs disponibles.
+**Remarque**
+> Si rien n'est précisé, LAMMPS utilise par défaut un seul thread **OpenMP** (`$OMP_NUM_THREADS=1`) et répartit les processus **MPI** sur l'intégralité des cœurs disponibles.
 
 
 ### Isolation partielle ou isolation totale
@@ -90,7 +88,7 @@ Par défaut, Apptainer n'isole pas totalement le conteneur du système de la mac
 
 Si l'on veut isoler le conteneur de la machine hôte, Apptainer propose différentes options (à adjoindre à `apptainer run`, `apptainer exec` ou `apptainer shell`) :
 
-* l'utilisation du flag `--no-mount` pour délier un ou plusieurs chemins au sein du conteneur, par exemple
+* l'utilisation du flag `--no-mount` pour délier un ou plusieurs chemins au sein du conteneur, par exemple :
 ```
 apptainer run --no-mount $PWD,sys $HOME/apptainer-images/lammps.sif -in in.file
 ```
@@ -105,7 +103,7 @@ apptainer run --no-home $HOME/apptainer-images/lammps.sif -in in.file
 apptainer run --containall $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
-Dans le cas où l'option `--containall` est activé, le répertoire contenant les fichiers d'entrée de LAMMPS n'est pas accessible dans le conteneur ! Il faut alors le monter manuellement avec le flag `--bind` au répertoire où l'on se trouve par défaut dans le conteneur (`$HOME`). Par exemple :
+Dans le cas où l'option `--containall` est activée, le répertoire contenant les fichiers d'entrée de LAMMPS n'est pas accessible dans le conteneur ! Il faut alors le monter manuellement avec le flag `--bind` au répertoire où l'on se trouve par défaut dans le conteneur (`$HOME`). Par exemple :
 ```
 apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif -in in.file
 ```
@@ -113,54 +111,54 @@ dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire 
 
 ## Exercices
 
-> **Exercice 1**
->
-> Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS en séquentiel ?
+### Exercice 1
+Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS en séquentiel ?
+
 > **Données**
 > * L'image est située au chemin suivant : `$HOME/apptainer-images/lammps.sif`
 > * Les fichiers d'entrée (dont le fichier d'entrée principal nommé `in.exercice`) sont situés dans le répertoire courant : `$PWD`
->
-> Réponses possibles :
-> `apptainer run $HOME/apptainer-images/lammps.sif -in in.exercice`
-> ou `apptainer exec $HOME/apptainer-images/lammps.sif lmp_mpi -in in.exercice`
-> ou `$HOME/apptainer-images/lammps.sif -in in.exercice`
-> ou
-> ```
-> apptainer exec \
->   --env OMP_NUM_THREADS=1 \
->   $HOME/apptainer-images/lammps.sif \
->   mpirun -np 1 lmp_mpi -in in.exercice
-> ```
+
+Réponses possibles :
+* `apptainer run $HOME/apptainer-images/lammps.sif -in in.exercice`
+* ou `apptainer exec $HOME/apptainer-images/lammps.sif lmp_mpi -in in.exercice`
+* ou `$HOME/apptainer-images/lammps.sif -in in.exercice`
+* ou
+```
+apptainer exec \
+  --env OMP_NUM_THREADS=1 \
+  $HOME/apptainer-images/lammps.sif \
+  mpirun -np 1 lmp_mpi -in in.exercice
+```
 
 
-> **Exercice 2**
->
-> Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS (1 thread **OpenMP** et 16 cœurs **MPI**) ?
-> **Données**
+### Exercice 2
+Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS (1 thread **OpenMP** et 16 cœurs **MPI**) ?
+
+**Données**
 > * L'image est située au chemin suivant : `$HOME/apptainer-images/lammps.sif`
 > * Les fichiers d'entrée (dont le fichier d'entrée principal nommé `in.exercice`) sont situés dans le répertoire courant : `$PWD`
->
-> Exemple de réponse possible :
-> ```
-> apptainer exec \
->   $HOME/apptainer-images/lammps.sif \
->   mpirun -np 16 lmp_mpi -in in.exercice
-> ```
-> où l'option `--env OMP_NUM_THREADS=1` est implicite et que le conteneur utilise par défaut. 
 
-> **Exercice 3**
->
-> Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS (2 threads **OpenMP** et 8 cœurs **MPI**) complètement isolé du système hôte ?
-> **Données**
+Exemple de réponse possible :
+```
+apptainer exec \
+  $HOME/apptainer-images/lammps.sif \
+  mpirun -np 16 lmp_mpi -in in.exercice
+```
+où l'option `--env OMP_NUM_THREADS=1` est implicite et que le conteneur utilise par défaut. 
+
+### Exercice 3
+Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS (2 threads **OpenMP** et 8 cœurs **MPI**) complètement isolé du système hôte ?
+
+**Données**
 > * L'image est située au chemin suivant : `$HOME/apptainer-images/lammps.sif`
 > * Les fichiers d'entrée (dont le fichier d'entrée principal nommé `in.exercice`) sont situés au chemin suivant : `$HOME/lammps-examples/exercice/`
->
-> Exemple de réponse possible
-> ```
-> apptainer exec \
->   --containall \
->   --env OMP_NUM_THREADS=2 \
->   --bind $HOME/lammps-examples/exercice/=$HOME \
->   $HOME/apptainer-images/lammps.sif \
->   mpirun -np 8 lmp_mpi -in in.exercice
-> ```
+
+Exemple de réponse possible
+```
+apptainer exec \
+  --containall \
+  --env OMP_NUM_THREADS=2 \
+  --bind $HOME/lammps-examples/exercice/=$HOME \
+  $HOME/apptainer-images/lammps.sif \
+  mpirun -np 8 lmp_mpi -in in.exercice
+```
