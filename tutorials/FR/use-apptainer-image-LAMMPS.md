@@ -33,9 +33,9 @@ Il est également possible de fournir des arguments à la commande par défaut e
 
 * L'argument `exec` est similaire à l'argument `run` mais d'invoquer n'importe quelle commande dans le conteneur. Par exemple :
 ```
-$ apptainer exec $HOME/apptainer-images/lammps.sif pwd
+$ apptainer exec $HOME/apptainer-images/lammps.sif sh -c pwd
 ```
-crée un conteneur à partir de l'image `$HOME/apptainer-images/lammps.sif`, invoque la commande `pwd` dans le conteneur puis détruit le conteneur.
+crée un conteneur à partir de l'image `$HOME/apptainer-images/lammps.sif`, invoque la commande `pwd` du shell dans le conteneur puis détruit le conteneur.
 
 * l'argument `shell` permet d'ouvrir un shell interactif au sein du conteneur (le *prompt* `Apptainer>` apparaît alors à gauche de la ligne de commande) et d'y effectuer plusieurs commandes successives, puis d'en sortir en détruisant le conteneur avec `exit` ou `Crtl+D`. Par exemple :
 ```
@@ -47,7 +47,7 @@ Apptainer> lmp_mpi -h # fait apparaître le message d'aide de LAMMPS
 Apptainer> exit
 ```
 
->[!Remarque]
+>**Remarque**
 >
 > En jouant avec les arguments `exec` et `shell`, vous remarquerez que le nombre de commandes accessibles depuis le conteneur est très restreint. En effet, le conteneur se limite le plus possible aux outils nécessaires à l'exécution de LAMMPS, pour des raisons de portabilité (taille de l'image) et de sécurité.
 
@@ -80,7 +80,7 @@ En utilisant ce conteneur, la même commande devient
 apptainer exec --env OMP_NUM_THREADS=2 $HOME/apptainer-images/lammps.sif mpirun -np 4 lmp_mpi -in in.file
 ```
 
->[!Remarque]
+>**Remarque**
 >
 > Si rien n'est précisé, LAMMPS utilise par défaut un seul thread **OpenMP** `$OMP_NUM_THREADS=1` et répartit les processus **MPI** sur l'intégralité des cœurs disponibles.
 
@@ -92,28 +92,28 @@ Si l'on veut isoler le conteneur de la machine hôte, Apptainer propose différe
 
 * l'utilisation du flag `--no-mount` pour délier un ou plusieurs chemins au sein du conteneur, par exemple
 ```
-apptainer run --no-mount tmp,sys $HOME/apptainer-images/lammps.sif
+apptainer run --no-mount $PWD,sys $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
 * l'utilisation du flag `--no-home` rend le répertoire `$HOME` inaccessible au conteneur (mais `$PWD` reste monté) :
 ```
-apptainer run --no-home $HOME/apptainer-images/lammps.sif
+apptainer run --no-home $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
 * le flag `--containall` isole totalement le conteneur de la machine hôte.
 ```
-apptainer run --containall $HOME/apptainer-images/lammps.sif
+apptainer run --containall $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
 Dans le cas où l'option `--containall` est activé, le répertoire contenant les fichiers d'entrée de LAMMPS n'est pas accessible dans le conteneur ! Il faut alors le monter manuellement avec le flag `--bind` au répertoire où l'on se trouve par défaut dans le conteneur (`$HOME`). Par exemple :
 ```
-apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif
+apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif -in in.file
 ```
 dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire courant (`$PWD`).
 
 ## Exercices
 
->[!Exercice 1]
+> **Exercice 1**
 >
 > Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS en séquentiel ?
 > **Données**
@@ -133,7 +133,7 @@ dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire 
 > ```
 
 
->[!Exercice 2]
+> **Exercice 2**
 >
 > Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS (1 thread **OpenMP** et 16 cœurs **MPI**) ?
 > **Données**
@@ -148,7 +148,7 @@ dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire 
 > ```
 > où l'option `--env OMP_NUM_THREADS=1` est implicite et que le conteneur utilise par défaut. 
 
->[!Exercice 3]
+> **Exercice 3**
 >
 > Comment utiliser l'image de conteneur pour effectuer un calcul LAMMPS (2 threads **OpenMP** et 8 cœurs **MPI**) complètement isolé du système hôte ?
 > **Données**

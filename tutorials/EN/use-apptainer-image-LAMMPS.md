@@ -33,9 +33,9 @@ You may also provide supplementary arguments to the default command by appending
 
 * The `exec` argument is similar to the `run` argument, only invoking **any** specified command inside the container. For example :
 ```
-$ apptainer exec $HOME/apptainer-images/lammps.sif pwd
+$ apptainer exec $HOME/apptainer-images/lammps.sif sh -c
 ```
-creates a container from the `$HOME/apptainer-images/lammps.sif` image, invokes the `pwd` command within the container, and then destroy it.
+creates a container from the `$HOME/apptainer-images/lammps.sif` image, invokes the shell `pwd` command within the container, and then destroy it.
 
 * The `shell` argument allows to enter an interactive shell inside the container (the `Apptainer>` *prompt* then appears on the left of the command line), run successive commands, then exit the container using `exit` or `Crtl+D`, which also destroys it. For example :
 ```
@@ -47,9 +47,9 @@ Apptainer> lmp_mpi -h # displays LAMMPS help message
 Apptainer> exit
 ```
 
->[!Remark]
+>**Remark**
 >
-> Playing `exec` et `shell` you'll notice only a quite limited amount of commands are available from the container. In fact, commands intend to be as restricted as possible to the ones needed to run LAMMPS, both for portability (image size) and security reasons.
+> Playing with `exec` et `shell` you'll notice only a quite limited amount of commands are available from the container. In fact, commands intend to be as restricted as possible to the ones needed to run LAMMPS, both for portability (image size) and security reasons.
 
 * The `run-help` argument displays the image's associated help message.
 ```
@@ -81,7 +81,7 @@ Using the container, the same command becomes
 apptainer exec --env OMP_NUM_THREADS=2 $HOME/apptainer-images/lammps.sif mpirun -np 4 lmp_mpi -in in.file
 ```
 
->[!Remark]
+>**Remark**
 >
 > Without any specification, LAMMPS uses by default a single **OpenMP** thread `$OMP_NUM_THREADS=1` and splitts **MPI** processes over all available cores.
 
@@ -93,28 +93,28 @@ If one wishes to isolate the container from the host machine, Apptainer offers s
 
 * use the `--no-mount` flag to unbind one or several paths in the container, for instance
 ```
-apptainer run --no-mount tmp,sys $HOME/apptainer-images/lammps.sif
+apptainer run --no-mount $PWD,sys $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
 * use the `--no-home` flad makes `$HOME` unavailable for the container (although `$PWD` ramains mounted) :
 ```
-apptainer run --no-home $HOME/apptainer-images/lammps.sif
+apptainer run --no-home $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
 * use the `--containall` flag completely isolates the container from the host.
 ```
-apptainer run --containall $HOME/apptainer-images/lammps.sif
+apptainer run --containall $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
 When `--containall` is active, the directory containing LAMMPS input files cannot be accessed from the container ! It needs to be manually mounted with the `--bind` flag to the default directory we're located in the container (`$HOME`). For instance :
 ```
-apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif
+apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif -in in.file
 ```
 in the case where LAMMPS input files are in the current directory (`$PWD`).
 
 ## Exercices
 
->[!First exercice]
+> **First exercice**
 >
 > How to use the container image to run a sequential LAMMPS computation ?
 > **Data**
@@ -134,7 +134,7 @@ in the case where LAMMPS input files are in the current directory (`$PWD`).
 > ```
 
 
->[!Second exercice]
+> **Second exercice**
 >
 > How to use the container image to run a LAMMPS computation (1 **OpenMP** thread and 16 **MPI** cores) ?
 > **Data**
@@ -149,7 +149,7 @@ in the case where LAMMPS input files are in the current directory (`$PWD`).
 > ```
 > where `--env OMP_NUM_THREADS=1` is implicit and use by default by the container. 
 
->[!Third exercice]
+> **Third exercice**
 >
 > How to use the container image to run a LAMMPS computation (2 **OpenMP** threads and 8 **MPI** cores) which is fully isolated from the host system ?
 > **Data**
