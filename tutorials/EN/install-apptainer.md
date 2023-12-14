@@ -1,6 +1,6 @@
 # How to install Apptainer ?
 
-This tutorial summarizes how to install the container management software [Apptainer][apptainer-home-page]. It is largely based on [official installation instructions][apptainer-install-linux], and one should read these more exhaustive ressourcesfor more details.
+This tutorial summarizes how to install the container management software [Apptainer][apptainer-home-page]. It is largely based on [official installation instructions][apptainer-install-linux], and one should read these more exhaustive ressources for more details.
 
 Apptainer works on any modern Linux distribution ; however, it is not compatible with Windows and MacOS host kernels and does not run natively on those. It is recommended to use virtualization solutions in such cases, which will not be covered in this topic : see more information [here][apptainer-vm-other-os].
 
@@ -86,7 +86,7 @@ curl -s https://raw.githubusercontent.com/apptainer/apptainer/main/tools/install
     bash -s - install-dir
 ```
 
-Please not the global `apptainer` command will not be available with this installation, and it is required to call the executable using `install-dir/bin/apptainer`. We suggest to create an `apptainer` alias pointing to this executable in `~/.bashrc` or `~/.bash_aliases`.
+Please note the global `apptainer` command will not be available with this installation, and it is required to call the executable using `install-dir/bin/apptainer`. We suggest to create an `apptainer` alias pointing to this executable in `~/.bashrc` or `~/.bash_aliases`.
 
 
 
