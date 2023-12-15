@@ -101,6 +101,37 @@ apptainer run --containall --bind $PWD:$HOME \ # On monte le répertoire courant
 ```
 dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire courant (`$PWD`).
 
+### Potentiels interatomiques
+Dans LAMMPS, les interactions entre atomes sont modéilisées par des champs de force (ou potentiels interatomiques) dont les paramètres sont spécifiés au sein de fichiers formattés. Le type d'interaction à appliquer dans chaque cas est spécifié au sein du fichier d'entrée principal de LAMMPS (par exemple nommé `in.file`), et à l'exécution le code cherche les fichiers correspondants à l'interaction dans l'ordre suivant :
+
+* Tout d'abord, il cherche un fichier de potentiel correspondant (localisation, type de potentiel, nom, ...) spécifié dans le fichier d'entrée principal (`in.file`).
+* Si rien n'est trouvé au chemin spécifié dans le fichier d'entrée principal (`in.file`), alors le code cherche dans le répertoire spécifié par la variable d'environnement `$LAMMPS_POTENTIALS`.
+
+Dans le cas de cette image de conteneur, cette variable `$LAMMPS_POTENTIALS` pointe au sein du conteneur vers le chemin `/usr/share/lammps/potentials`. Ce répertoire contient les fichiers de potentiel fournis par défaut avec la version du code présente dans le conteneur.
+
+Si on dispose d'un autre jeu de potentiels que l'on veut utiliser par défaut, il est toutefois possible d'altérer ce comportement de deux manières :
+
+* On peut d'une part écraser le contenu de `/usr/share/lammps/potentials` en montant un autre répertoire de la machine hôte sur ce chemin (via `--bind`). Dans ce cas, `$LAMMPS_POTENTIALS` pointe toujours sur `/usr/share/lammps/potentials` mais le contenu de ce répertoire est écrasé.
+```
+apptainer run --bind /new/path/with/potential/on/hosts/:/usr/share/lammps/potentials \ # 
+  $HOME/apptainer-images/lammps.sif -in in.file
+```
+
+* On peut aussi redéfinir la variable `$LAMMPS_POTENTIALS` avec `--env` pour qu'elle pointe vers un autre répertoire de la machine hôte (attention à bien s'assurer qu'il est également accessible dans le conteneur).
+```
+# Si aucune option d'isolation n'est précisée, $HOME/lammps-potentials
+# est accessible dans le conteneur.
+apptainer run --env LAMMPS_POTENTIALS=$HOME/lammps-potentials \
+  $HOME/apptainer-images/lammps.sif -in in.file
+
+
+# Par défaut, /opt/lammps-potentials n'est pas partagée entre l'hôte et le conteneur.
+apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redéfinition de $LAMMPS_POTENTIALS
+  --bind /opt/lammps-potentials:/opt/lammps-potentials       \ # montage du répertoire dans le conteneur
+  $HOME/apptainer-images/lammps.sif -in in.file
+
+```
+
 ## Exercices
 
 ### Exercice 1
