@@ -37,7 +37,7 @@ To do the same inside a container, we can run three equivalent commands. In each
 apptainer exec $HOME/apptainer-images/lammps.sif lmp_mpi -in in.file
 ```
 
-* One can use `apptainer run` to call the container's *default* command, namely the `lmp_mpi` executable. We also append instructions at the end of the command allowign to locate LAMMPS input file.
+* One can use `apptainer run` to call the container's *default* command, namely the `lmp_mpi` executable. We also append instructions at the end of the command allowing to locate LAMMPS input file.
 ```
 apptainer run $HOME/apptainer-images/lammps.sif -in in.file # "lmp_mpi" is implicitly called by "run"
 ```
@@ -101,6 +101,37 @@ apptainer run --containall --bind $PWD:$HOME \ # Mounting the current directory 
 ```
 in the case where LAMMPS input files are in the current directory (`$PWD`).
 
+### Potentiels interatomiques
+In LAMMPS, interactions between atoms are defined through force fields (or interatomic potentials). Their parameters are specified inside formatted files. The type of interaction to be applied (*ie.* the type of file to look for) is explicited in LAMMPS main input file (*eg.* named `in.file`). At runtime, the code looks for the corresponding files in the following order :
+
+* First, it looks for a file corresponding (location, potential type, name, ...) to what's defined in the main input (`in.file`).
+* If nothing is found that corresponds to the instructions of the main input (`in.file`), the code then looks in the directory defined by the `$LAMMPS_POTENTIALS` environment variable.
+
+For this specific container image, the `$LAMMPS_POTENTIALS` variable points inside the container to `/usr/share/lammps/potentials`. This directory contains the default potenital files included with the version LAMMPS present in the container.
+
+In the (quite rare) case where one has another set of potential they wish to use by default, it is however possible to alter this behaviour. This is achievable in two ways :
+
+* On one hand, we can overwite the content of `/usr/share/lammps/potentials` by mounting another directory from the host machine to this very path (using `--bind`). In such cases, `$LAMMPS_POTENTIALS` still points towards `/usr/share/lammps/potentials` but the content of this directory is overwritten.
+```
+# We overwrite /usr/share/lammps/potentials in the container.
+apptainer run --bind /new/path/with/potential/on/host/:/usr/share/lammps/potentials \
+  $HOME/apptainer-images/lammps.sif -in in.file
+```
+
+* On the other hand, one can also redefine `$LAMMPS_POTENTIALS` (using `--env`) to make it point to another path from the host machine (just be sure to also have it available in the container). Here, `$LAMMPS_POTENTIALS` is modified and the code looks for potentials in the newly defined path.
+```
+# If no isolation option is used, $HOME/lammps-potentials
+# is shared with the container.
+apptainer run --env LAMMPS_POTENTIALS=$HOME/lammps-potentials \
+  $HOME/apptainer-images/lammps.sif -in in.file
+
+
+# By default, /opt/lammps-potentials is not shared between the host and the container
+# We have to mount this directory with --bind.
+apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redefining $LAMMPS_POTENTIALS
+  --bind /opt/lammps-potentials:/opt/lammps-potentials       \ # mount the directory in the container
+  $HOME/apptainer-images/lammps.sif -in in.file
+```
 
 ## Exercices
 
