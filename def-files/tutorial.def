@@ -1,0 +1,51 @@
+BootStrap: docker
+From: debian:stable-slim
+
+%post
+   mkdir -p /home/app/
+   echo "default content" > /home/app/test.txt
+
+%environment
+   export GREET="Welcome"
+
+%runscript
+   echo $GREET $USER "who just ran the default command of the container."
+
+%help
+   Welcome to Apptainer !
+   This image is meant as a tutorial to help understand the basics of Apptainer containers.
+
+   You can learn the basics such as :
+   - executing a command in a container through 
+         "apptainer run tutorial.sif" 
+      or "apptainer exec tutorial.sif echo Hi from the container !"
+   - entering an interactive shell within the container through 
+         "apptainer shell tutorial.sif"
+      (type "exit" or use Ctrl+D to escape the interactive shell)
+   - displaying help messages for a given image through 
+         "apptainer run-help tutorial.sif"
+      (which is the command you used if you see this message ; congratulations !) 
+   - displaying the images meta-data through
+         "apptainer inspect tutorial.sif"
+
+   You may also understand how to (re)define environment variables through the "--env" flag, for instance with.
+         "apptainer run --env USER=newusername tutorial.sif"
+      or "apptainer run --env GREET=Hello tutorial.sif" 
+   
+   You shall then understand how to isolate (partially or totally) the container from the host machine
+   using "--no-mount", "--no-home" or "--containall". For instance, try :
+         "apptainer exec --no-mount sys tutorial.sif ls $(pwd)"
+      or "apptainer exec --no-home tutorial.sif ls $HOME"
+      or "apptainer exec --containall tutorial.sif"
+
+   Eventually, you will be able to mount directories from the host machine inside the container to provide inputs
+   and gather outputs. For instance :
+         "date > $PWD/test-host.txt" # On host machine
+         "apptainer exec --bind $PWD:/opt tutorial.sif cp /opt/test-host.txt /opt/test-container.txt"
+         "cat $PWD/test-host.txt $PWD/test-container.txt" # On host machine
+   
+
+%labels
+   Author dylan.bissuel@univ-lyon1.fr
+   MyLabel apptainer-tutorial-image
+   Version 1.0
