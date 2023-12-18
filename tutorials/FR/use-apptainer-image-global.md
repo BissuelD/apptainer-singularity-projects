@@ -19,7 +19,7 @@ La principale manière d'interagir avec l'image se fait en invoquant la commande
 ```
 $ apptainer run $HOME/apptainer-images/tutorial.sif
 ```
-Il est également possible de fournir des arguments à la commande par défaut en les ajoutant à la suite.
+> Si la commande lancée par `apptainer run` acceptait des arguments supplémentaires (ce qui n'est pas le cas ici), il serait possible de les fournir en les ajoutant à la suite.
 
 * L'argument `exec` est similaire à l'argument `run` mais permet d'invoquer **n'importe quelle commande** dans le conteneur. Par exemple :
 ```
@@ -39,7 +39,7 @@ $
 ```
 
 **Remarque**
-> En jouant avec les arguments `exec` et `shell` à partir de différentes images, vous remarquerez parfois que le nombre de commandes accessibles depuis le conteneur est très restreint. Dans l'idéal, un conteneur se limite le plus possible aux outils nécessaires à l'exécution du code qu'il contient en s'affrachissant des outils superflus, pour des raisons de portabilité (taille de l'image) et de sécurité.
+> En jouant avec les arguments `exec` et `shell` à partir de différentes images, vous remarquerez parfois que le nombre de commandes accessibles depuis le conteneur est très restreint. Dans l'idéal, un conteneur se limite en effet le plus possible aux outils nécessaires à l'exécution du code qu'il contient en s'affrachissant des outils superflus, pour des raisons de portabilité (taille de l'image) et de sécurité.
 
 * l'argument `run-help` permet d'afficher le message d'aide inclut dans l'image.
 ```
@@ -60,7 +60,7 @@ ce qui est strictement équivalent à `apptainer run $HOME/apptainer-images/tuto
 ## Variables d'environnement
 Pour leur bon fonctionnement, de nombreux outils requièrent que certaines variables d'environnement soient définies. En principe, un conteneur correctement construit leur définit au préalable des valeurs par défaut pertinentes, mais il est courant qu'un utilisateur souhaite en modifier une (ou plusieurs). Avec Apptainer, il est possible de spécifier la valeur que l'on souhaite donner à une variable d'environnement via le flag `--env`.
 
-Par exemple, la commande par défaut lancée par l'image `$HOME/apptainer-images/tutorial.sif` est la suivante :
+Par exemple, la commande par défaut lancée par `apptainer run $HOME/apptainer-images/tutorial.sif` est la suivante :
 ```
 echo $GREET $USER "who just ran the default command of the container."
 ```
@@ -104,7 +104,7 @@ apptainer exec --no-home $HOME/apptainer-images/tutorial.sif ls $HOME
 apptainer run --containall $HOME/apptainer-images/tutorial.sif
 ```
 
-Il est possible, notamment en jouant avec les options précédentes, que le répertoire contenant les potentiels fichiers d'entrée et de sortie manipulés ne sont accessibles dans le conteneur ! Il faut alors le monter manuellement avec le flag `--bind` dans le conteneur. Par exemple, on peut imaginer le petit exercice suivant consistant à créer un fichier sur la machine hôte, le rendre accessible et en créer une copie au sein du conteneur, puis récupérer cette copie sur la machine hôte :
+Il est possible, notamment en jouant avec les options précédentes, que le répertoire contenant les éventuels fichiers d'entrée et de sortie requis ne soient pas accessibles dans le conteneur ! Il faut alors les monter manuellement avec le flag `--bind` dans le conteneur. Par exemple, on peut imaginer le petit exercice suivant consistant à créer un fichier sur la machine hôte, le rendre accessible au sein du conteneur, en créer une copie, puis récupérer cette copie sur la machine hôte :
 ```
 # Création d'un fichier sur la machine hôte 
 date > $PWD/test-host.txt
