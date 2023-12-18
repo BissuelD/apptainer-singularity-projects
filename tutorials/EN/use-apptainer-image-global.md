@@ -1,108 +1,118 @@
-# Comment utiliser l'image Apptainer de LAMMPS ?
+# How to interact with an Apptainer image ?
 
-En préalable de ces explications, il est nécessaire d'avoir installé Apptainer sur votre machine ; voir [ce lien](https://www.apptainer-images.diamond.fr/install-apptainer/FR) pour plus de détails.
+In preamble, you need to have Apptainer installed on your machine ; see [this link](https://www.apptainer-images.diamond.fr/install-apptainer/FR) for more details.
 
-Ce tutoriel détaille l'utilisation du l'image de conteneur du code LAMMPS téléchargeable à [cette adresse](https://www.apptainer-images.diamond.fr/lammps). En suivant ce lien, vous récupérez une image Apptainer (format de fichier `.sif`) qui vous permattra de créer des conteneurs à même de faire tourner LAMMPS.
+This tutorial explains the main ways to interact with an Apptainer image in order to generate and manage containers. Instructions presented her are in principle also valid for any other Apptainer container. A tailor-made image dedicated to the present tutorial is available at [this address](https://www.apptainer-images.diamond.fr/lammps). By following this link, you will get an Apptainer image (`.sif` file format) that will allow you to create containers.
 
-Pour plus d'informations sur les conteneurs Apptainer, veuillez consulter la [page dédiée](https://www.apptainer-images.diamond.fr/apptainer-containers/FR)
-
-Cette image est un fichier relocalisable et renommable, qu'il est recommandé de placer dans un répertoire dédié pour facilement la retrouver ; celui-ci peut-être quelconque, et dans le cadre de ce tutoriel nous assumerons que vous l'avez placée dans un répertoire nommé `$HOME/apptainer-images` :
+This image is a relocatable and renamable file we recommend putting in a dedicated directory to easily find it. While it can be any directory, in this tutorial we will assume you put it in `$HOME/apptainer-images`` :
 ```
 mkdir -p $HOME/apptainer-images
-mv ./lammps-mpi-voro++-from-guix.sif $HOME/apptainer-images/lammps.sif
+mv ./tutorial.sif $HOME/apptainer-images/tutorial.sif
 ```
 
-## TL; DR Commande en une ligne
-Pour les personnes pressées, voici comment lancer un calcul LAMMPS parallèle en utilisant l'image de conteneur (téléchargée au préalable et située à `$HOME/apptainer-images/lammps.sif`). Dans le cas où le répertoire courant contient les fichiers d'entrée nécessaires pour LAMMPS :
-```
-apptainer exec $HOME/apptainer-images/lammps.sif mpirun -np <N> lmp_mpi -in <input.lammps>
-```
-
-## Comment interagir avec l'image Apptainer
-
-
-### Apptainer : crash course
+## Apptainer : crash course
 This section is aimed for people who have not used Apptainer yet.
 
 The main way to interact with the image is through invoking the `apptainer` command, followed by different arguments :
 
-* The `run` argument spawns a container from the image, runs the *container's default commannd* (here calling the `lmp_mpi` executable) within the container, and then destroys it.
+The `run` argument spawns a container from the image, runs the *container's default commannd* (here calling the `lmp_mpi` executable) within the container, and then destroys it.
 ```
-$ apptainer run $HOME/apptainer-images/lammps.sif # exécute le binaire lmp_mpi dans le conteneur
+$ apptainer run $HOME/apptainer-images/tutorial.sif
 ```
-You may also provide supplementary arguments to the default command by appending them at the end (*eg.* : `apptainer run $HOME/apptainer-images/lammps.sif -h`).
+> If the command invoked by `apptainer run` allowed supplementary arguments (which is not the case here), they could be provided by appending them at the end.
 
 * The `exec` argument is similar to the `run` argument, only invoking **any** specified command inside the container. For example :
 ```
-$ apptainer exec $HOME/apptainer-images/lammps.sif sh -c
+$ apptainer exec $HOME/apptainer-images/tutorial.sif echo Hi from the container !
 ```
-creates a container from the `$HOME/apptainer-images/lammps.sif` image, invokes the shell `pwd` command within the container, and then destroys it.
+creates a container from the `$HOME/apptainer-images/tutorial.sif` image, invokes the `echo Hi from the container !` command within the container, and then destroy it.
 
 * The `shell` argument allows to enter an interactive shell inside the container (the `Apptainer>` *prompt* then appears on the left of the command line), run successive commands, then exit the container using `exit` or `Crtl+D`, which also destroys it. For example :
 ```
-$ apptainer shell $HOME/apptainer-images/lammps.sif
+$ apptainer shell $HOME/apptainer-images/tutorial.sif
 Apptainer> pwd
 Apptainer> cd ..
 Apptainer> pwd
-Apptainer> lmp_mpi -h # displays LAMMPS help message
+Apptainer> date
 Apptainer> exit
+$ 
 ```
 
 **Remark**
-> Playing with `exec` et `shell` you'll notice only a quite limited amount of commands are available from the container. In fact, commands intend to be as restricted as possible to the ones needed to run LAMMPS, both for portability (image size) and security reasons.
+> PLaying with `exec` and `shell` from different images, you will sometimes notice the number of commands available inside the container is quite limited. Indeed, a container should ideally restrict its content to be as close as possible to the minimal tools to run the code it embedds. It should hence remove superfluous utilitaries, both for portability (image size) and security reasons.
 
 * The `run-help` argument displays the image's associated help message.
 ```
-apptainer run-help $HOME/apptainer-images/lammps.sif
+apptainer run-help $HOME/apptainer-images/tutorial.sif
 ```
 
 * The `inspect` argument displays the image's meta-data (owner, image's author, version, creation date, ...).
 ```
-apptainer inspect $HOME/apptainer-images/lammps.sif
+apptainer inspect $HOME/apptainer-images/tutorial.sif
 ```
 
 You may also directly execute the image, as a binary :
 ```
-$ $HOME/apptainer-images/lammps.sif
+$ $HOME/apptainer-images/tutorial.sif
 ```
-which is strictly equivalent to `apptainer run $HOME/apptainer-images/lammps.sif`.
+which is strictly equivalent to `apptainer run $HOME/apptainer-images/tutorial.sif`
 
-### Utiliser le conteneur LAMMPS
-L'image `$HOME/apptainer-images/lammps.sif` embarque une version de LAMMPS supportant la parallélisation via **OpenMP** et **MPI**.
+## Environment variables
+Many tools require environment variables definition to run. In principle, a coorectly-built container pre-defines suitable default values for them, but it is common for a user to wish and modifiy one (or more). With Apptainer, you may specify the value you want an environment variable to have through the `--env` flag.
 
-Dans le cas où aucune conteneurisation ne serait utilisée, la commande typique ressemblerait à :
+For instance, the default command invoked by `apptainer run $HOME/apptainer-images/tutorial.sif` is :
 ```
-OMP_NUM_THREADS=2 mpirun -np 4 lmp_mpi -in in.file
+echo $GREET $USER "who just ran the default command of the container."
 ```
+where the `$GREET` variable is defined to be "Welcome" by default in the container.
 
-En utilisant ce conteneur, la même commande devient :
+The `$USER` is automatically set so that its value inside the container is the same as for the host machine. This design choice is not specific to the image used in this tutorial. It is one of many Apptainer standard behaviours to ease functionning in a high-performance computation setting.
+
+Those two variables may be redefined :
 ```
-apptainer exec --env OMP_NUM_THREADS=2 $HOME/apptainer-images/lammps.sif mpirun -np 4 lmp_mpi -in in.file
+apptainer run --env GREET=Hello $HOME/apptainer-images/tutorial.sif
 ```
-
-
-### Isolation partielle ou isolation totale
-Par défaut, Apptainer n'isole pas totalement le conteneur du système de la machine hôte. Les chemins suivants de la machine hôte sont montés et accessibles par défaut dans le conteneur : `$HOME`, `$PWD` `/sys`, `/proc`, `/tmp`, `/var/tmp`, `/etc/resolve.conf` et `/etc/passwd`.
-
-Si l'on veut isoler le conteneur de la machine hôte, Apptainer propose différentes options (à adjoindre à `apptainer run`, `apptainer exec` ou `apptainer shell`) :
-
-* l'utilisation du flag `--no-mount` pour délier un ou plusieurs chemins au sein du conteneur, par exemple :
+or
 ```
-apptainer run --no-mount $PWD,sys $HOME/apptainer-images/lammps.sif -in in.file
+apptainer run --env USER=newusername $HOME/apptainer-images/tutorial.sif
 ```
-
-* l'utilisation du flag `--no-home` rend le répertoire `$HOME` inaccessible au conteneur (mais `$PWD` reste monté) :
+**Remark**
+> When one modifies `$USER`, Apptainer may display a message warning the environment variable's value is accepted but deviates from the standard behaviour.
 ```
-apptainer run --no-home $HOME/apptainer-images/lammps.sif -in in.file
+WARNING: Environment variable USER already has value [newusername], will not forward new value [oldusername] from parent process environment
 ```
 
-* le flag `--containall` isole totalement le conteneur de la machine hôte.
+
+## Partial or total isolation
+By default, Apptainer does not fully isolate the container from the host system. The following paths of the host are mounted and dy default available from the container : `$HOME`, `$PWD` `/sys`, `/proc`, `/tmp`, `/var/tmp`, `/etc/resolve.conf` and `/etc/passwd`.
+
+If one wishes to isolate the container from the host machine, Apptainer offers several options (to be added to `apptainer run`, `apptainer exec` or `apptainer shell`) :
+
+* use the `--no-mount` flag to unbind one or several paths in the container, for instance
 ```
-apptainer run --containall $HOME/apptainer-images/lammps.sif -in in.file
+apptainer run --no-mount sys $HOME/apptainer-images/tutorial.sif
 ```
 
-Dans le cas où l'option `--containall` est activée, le répertoire contenant les fichiers d'entrée de LAMMPS n'est pas accessible dans le conteneur ! Il faut alors le monter manuellement avec le flag `--bind` au répertoire où l'on se trouve par défaut dans le conteneur (`$HOME`). Par exemple :
+* use the `--no-home` flad makes `$HOME` unavailable for the container (although `$PWD` remains mounted) :
 ```
-apptainer run --containall --bind $PWD:$HOME $HOME/apptainer-images/lammps.sif -in in.file
+apptainer exec --no-home $HOME/apptainer-images/tutorial.sif ls $HOME
 ```
-dans le cas où les fichiers d'entrée de LAMMPS se situent dans le répertoire courant (`$PWD`).
+> Here, we see `$HOME` exists inside the container but does not match the one one host machine.
+
+* use the `--containall` flag completely isolates the container from the host.
+```
+apptainer run --containall $HOME/apptainer-images/tutorial.sif
+```
+
+It is possible, for instance when playing with the previous options, that the directory containing possibly required input or output files can not be accessed from the container ! It is then required to manually mount it to the container using the `--bind` flag. For example, one may imagine the following little exercise : create a file on the host machine, make it available inside the container, create a copy of it, and then retrieve the copy on the host machine.
+```
+# Creating a file on host
+date > $PWD/test-host.txt
+
+apptainer exec --bind $PWD:/opt \                 # Mounting the current directory to /opt in the container
+    $HOME/apptainer-images/tutorial.sif           \
+    cp /opt/test-host.txt /opt/test-container.txt # Create a copy of the file in the container
+
+# Verification on host
+cat $PWD/test-host.txt $PWD/test-container.txt
+```
