@@ -4,7 +4,7 @@ In preamble, you need to have Apptainer installed on your machine ; see [this li
 
 This tutorial explains the main ways to interact with an Apptainer image in order to generate and manage containers. Instructions presented her are in principle also valid for any other Apptainer container. A tailor-made image dedicated to the present tutorial is available at [this address](https://www.apptainer-images.diamond.fr/lammps). By following this link, you will get an Apptainer image (`.sif` file format) that will allow you to create containers.
 
-This image is a relocatable and renamable file we recommend putting in a dedicated directory to easily find it. While it can be any directory, in this tutorial we will assume you put it in `$HOME/apptainer-images`` :
+This image is a relocatable and renamable file we recommend putting in a dedicated directory to easily find it. While it can be any directory, in this tutorial we will assume you put it in `$HOME/apptainer-images` :
 ```
 mkdir -p $HOME/apptainer-images
 mv ./tutorial.sif $HOME/apptainer-images/tutorial.sif
@@ -15,17 +15,18 @@ This section is aimed for people who have not used Apptainer yet.
 
 The main way to interact with the image is through invoking the `apptainer` command, followed by different arguments :
 
-The `run` argument spawns a container from the image, runs the *container's default commannd* (here calling the `lmp_mpi` executable) within the container, and then destroys it.
+* The `run` argument spawns a container from the image, runs the *container's default command* within the container, and then destroys it.
 ```
 $ apptainer run $HOME/apptainer-images/tutorial.sif
 ```
+> **Note**
 > If the command invoked by `apptainer run` allowed supplementary arguments (which is not the case here), they could be provided by appending them at the end.
 
 * The `exec` argument is similar to the `run` argument, only invoking **any** specified command inside the container. For example :
 ```
 $ apptainer exec $HOME/apptainer-images/tutorial.sif echo Hi from the container !
 ```
-creates a container from the `$HOME/apptainer-images/tutorial.sif` image, invokes the `echo Hi from the container !` command within the container, and then destroy it.
+creates a container from the `$HOME/apptainer-images/tutorial.sif` image, invokes the `echo Hi from the container !` command within the container, and then destroys it.
 
 * The `shell` argument allows to enter an interactive shell inside the container (the `Apptainer>` *prompt* then appears on the left of the command line), run successive commands, then exit the container using `exit` or `Crtl+D`, which also destroys it. For example :
 ```
@@ -39,7 +40,7 @@ $
 ```
 
 **Remark**
-> PLaying with `exec` and `shell` from different images, you will sometimes notice the number of commands available inside the container is quite limited. Indeed, a container should ideally restrict its content to be as close as possible to the minimal tools to run the code it embedds. It should hence remove superfluous utilitaries, both for portability (image size) and security reasons.
+> Playing with `exec` and `shell` from different images, you will sometimes notice the number of commands available inside the container is quite limited. Indeed, a container should ideally restrict its content to be as close as possible to the minimal tools to run the code it embedds. It should hence remove superfluous utilitaries, both for portability (image size) and security reasons.
 
 * The `run-help` argument displays the image's associated help message.
 ```
@@ -58,7 +59,7 @@ $ $HOME/apptainer-images/tutorial.sif
 which is strictly equivalent to `apptainer run $HOME/apptainer-images/tutorial.sif`
 
 ## Environment variables
-Many tools require environment variables definition to run. In principle, a coorectly-built container pre-defines suitable default values for them, but it is common for a user to wish and modifiy one (or more). With Apptainer, you may specify the value you want an environment variable to have through the `--env` flag.
+Many tools require environment variables definition to run. In principle, a correctly-built container pre-defines suitable default values for them, but it is common for a user to wish and modifiy one (or more). With Apptainer, you may specify the value you want an environment variable to have through the `--env` flag.
 
 For instance, the default command invoked by `apptainer run $HOME/apptainer-images/tutorial.sif` is :
 ```
@@ -84,7 +85,7 @@ WARNING: Environment variable USER already has value [newusername], will not for
 
 
 ## Partial or total isolation
-By default, Apptainer does not fully isolate the container from the host system. The following paths of the host are mounted and dy default available from the container : `$HOME`, `$PWD` `/sys`, `/proc`, `/tmp`, `/var/tmp`, `/etc/resolve.conf` and `/etc/passwd`.
+By default, Apptainer does not fully isolate the container from the host system. The following paths of the host are mounted and by default available from the container : `$HOME`, `$PWD` `/sys`, `/proc`, `/tmp`, `/var/tmp`, `/etc/resolve.conf` and `/etc/passwd`.
 
 If one wishes to isolate the container from the host machine, Apptainer offers several options (to be added to `apptainer run`, `apptainer exec` or `apptainer shell`) :
 
@@ -93,7 +94,7 @@ If one wishes to isolate the container from the host machine, Apptainer offers s
 apptainer run --no-mount sys $HOME/apptainer-images/tutorial.sif
 ```
 
-* use the `--no-home` flad makes `$HOME` unavailable for the container (although `$PWD` remains mounted) :
+* use the `--no-home` flag makes `$HOME` unavailable for the container (although `$PWD` remains mounted) :
 ```
 apptainer exec --no-home $HOME/apptainer-images/tutorial.sif ls $HOME
 ```

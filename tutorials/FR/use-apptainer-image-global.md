@@ -19,6 +19,7 @@ La principale manière d'interagir avec l'image se fait en invoquant la commande
 ```
 $ apptainer run $HOME/apptainer-images/tutorial.sif
 ```
+> **NOte**
 > Si la commande lancée par `apptainer run` acceptait des arguments supplémentaires (ce qui n'est pas le cas ici), il serait possible de les fournir en les ajoutant à la suite.
 
 * L'argument `exec` est similaire à l'argument `run` mais permet d'invoquer **n'importe quelle commande** dans le conteneur. Par exemple :
