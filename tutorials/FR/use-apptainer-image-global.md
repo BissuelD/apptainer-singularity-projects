@@ -19,7 +19,7 @@ La principale manière d'interagir avec l'image se fait en invoquant la commande
 ```
 $ apptainer run $HOME/apptainer-images/tutorial.sif
 ```
-> **NOte**
+**Note**
 > Si la commande lancée par `apptainer run` acceptait des arguments supplémentaires (ce qui n'est pas le cas ici), il serait possible de les fournir en les ajoutant à la suite.
 
 * L'argument `exec` est similaire à l'argument `run` mais permet d'invoquer **n'importe quelle commande** dans le conteneur. Par exemple :
@@ -42,7 +42,7 @@ $
 **Remarque**
 > En jouant avec les arguments `exec` et `shell` à partir de différentes images, vous remarquerez parfois que le nombre de commandes accessibles depuis le conteneur est très restreint. Dans l'idéal, un conteneur se limite en effet le plus possible aux outils nécessaires à l'exécution du code qu'il contient en s'affrachissant des outils superflus, pour des raisons de portabilité (taille de l'image) et de sécurité.
 
-* l'argument `run-help` permet d'afficher le message d'aide inclut dans l'image.
+* l'argument `run-help` permet d'afficher le message d'aide inclus dans l'image.
 ```
 apptainer run-help $HOME/apptainer-images/tutorial.sif
 ```
@@ -105,7 +105,7 @@ apptainer exec --no-home $HOME/apptainer-images/tutorial.sif ls $HOME
 apptainer run --containall $HOME/apptainer-images/tutorial.sif
 ```
 
-Il est possible, notamment en jouant avec les options précédentes, que le répertoire contenant les éventuels fichiers d'entrée et de sortie requis ne soient pas accessibles dans le conteneur ! Il faut alors les monter manuellement avec le flag `--bind` dans le conteneur. Par exemple, on peut imaginer le petit exercice suivant consistant à créer un fichier sur la machine hôte, le rendre accessible au sein du conteneur, en créer une copie dans le conteneur, puis récupérer cette copie sur la machine hôte :
+Il est possible, notamment en jouant avec les options précédentes, que le répertoire contenant les éventuels fichiers d'entrée et de sortie requis ne soit pas accessible dans le conteneur ! Il faut alors monter ce dossier manuellement avec le flag `--bind` dans le conteneur. Par exemple, on peut imaginer le petit exercice suivant consistant à créer un fichier sur la machine hôte, le rendre accessible au sein du conteneur, en créer une copie dans le conteneur, puis récupérer cette copie sur la machine hôte :
 ```
 # Création d'un fichier sur la machine hôte 
 date > $PWD/test-host.txt
