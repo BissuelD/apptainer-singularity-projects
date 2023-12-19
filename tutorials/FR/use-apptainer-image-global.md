@@ -47,7 +47,7 @@ $
 apptainer run-help $HOME/apptainer-images/tutorial.sif
 ```
 
-* l'argument `inspect` permet d'afficher les métadonnées relatives à l'image (propriétaire, auteur de l'image, version, date de création, ...)
+* l'argument `inspect` permet d'afficher les métadonnées relatives à l'image (auteur de l'image, version, date de création, ...)
 ```
 apptainer inspect $HOME/apptainer-images/tutorial.sif
 ```
@@ -105,7 +105,7 @@ apptainer exec --no-home $HOME/apptainer-images/tutorial.sif ls $HOME
 apptainer run --containall $HOME/apptainer-images/tutorial.sif
 ```
 
-Il est possible, notamment en jouant avec les options précédentes, que le répertoire contenant les éventuels fichiers d'entrée et de sortie requis ne soient pas accessibles dans le conteneur ! Il faut alors les monter manuellement avec le flag `--bind` dans le conteneur. Par exemple, on peut imaginer le petit exercice suivant consistant à créer un fichier sur la machine hôte, le rendre accessible au sein du conteneur, en créer une copie, puis récupérer cette copie sur la machine hôte :
+Il est possible, notamment en jouant avec les options précédentes, que le répertoire contenant les éventuels fichiers d'entrée et de sortie requis ne soient pas accessibles dans le conteneur ! Il faut alors les monter manuellement avec le flag `--bind` dans le conteneur. Par exemple, on peut imaginer le petit exercice suivant consistant à créer un fichier sur la machine hôte, le rendre accessible au sein du conteneur, en créer une copie dans le conteneur, puis récupérer cette copie sur la machine hôte :
 ```
 # Création d'un fichier sur la machine hôte 
 date > $PWD/test-host.txt

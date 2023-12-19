@@ -2,7 +2,7 @@
 
 In preamble, you need to have Apptainer installed on your machine ; see [this link](https://www.apptainer-images.diamond.fr/install-apptainer/FR) for more details.
 
-This tutorial explains the main ways to interact with an Apptainer image in order to generate and manage containers. Instructions presented her are in principle also valid for any other Apptainer container. A tailor-made image dedicated to the present tutorial is available at [this address](https://www.apptainer-images.diamond.fr/lammps). By following this link, you will get an Apptainer image (`.sif` file format) that will allow you to create containers.
+This tutorial explains the main ways to interact with an Apptainer image in order to generate and manage containers. Instructions presented here are in principle also valid for any other Apptainer container. A tailor-made image dedicated to the present tutorial is available at [this address](https://www.apptainer-images.diamond.fr/lammps). By following this link, you will get an Apptainer image (`.sif` file format) that will allow you to create containers.
 
 This image is a relocatable and renamable file we recommend putting in a dedicated directory to easily find it. While it can be any directory, in this tutorial we will assume you put it in `$HOME/apptainer-images` :
 ```
@@ -19,7 +19,7 @@ The main way to interact with the image is through invoking the `apptainer` comm
 ```
 $ apptainer run $HOME/apptainer-images/tutorial.sif
 ```
-> **Note**
+**Note**
 > If the command invoked by `apptainer run` allowed supplementary arguments (which is not the case here), they could be provided by appending them at the end.
 
 * The `exec` argument is similar to the `run` argument, only invoking **any** specified command inside the container. For example :
@@ -40,14 +40,14 @@ $
 ```
 
 **Remark**
-> Playing with `exec` and `shell` from different images, you will sometimes notice the number of commands available inside the container is quite limited. Indeed, a container should ideally restrict its content to be as close as possible to the minimal tools to run the code it embedds. It should hence remove superfluous utilitaries, both for portability (image size) and security reasons.
+> Playing with `exec` and `shell` using different images, you will sometimes notice the number of commands available inside the container is quite limited. Indeed, a container should ideally restrict its content to be as close as possible to the minimal tools to run the code it embedds. It should hence remove superfluous utilitaries, both for portability (image size) and security reasons.
 
 * The `run-help` argument displays the image's associated help message.
 ```
 apptainer run-help $HOME/apptainer-images/tutorial.sif
 ```
 
-* The `inspect` argument displays the image's meta-data (owner, image's author, version, creation date, ...).
+* The `inspect` argument displays the image's meta-data (image's author, version, creation date, ...).
 ```
 apptainer inspect $HOME/apptainer-images/tutorial.sif
 ```
@@ -94,18 +94,18 @@ If one wishes to isolate the container from the host machine, Apptainer offers s
 apptainer run --no-mount sys $HOME/apptainer-images/tutorial.sif
 ```
 
-* use the `--no-home` flag makes `$HOME` unavailable for the container (although `$PWD` remains mounted) :
+* use the `--no-home` flag to make `$HOME` unavailable for the container (although `$PWD` remains mounted) :
 ```
 apptainer exec --no-home $HOME/apptainer-images/tutorial.sif ls $HOME
 ```
 > Here, we see `$HOME` exists inside the container but does not match the one one host machine.
 
-* use the `--containall` flag completely isolates the container from the host.
+* use the `--containall` flag to completely isolate the container from the host.
 ```
 apptainer run --containall $HOME/apptainer-images/tutorial.sif
 ```
 
-It is possible, for instance when playing with the previous options, that the directory containing possibly required input or output files can not be accessed from the container ! It is then required to manually mount it to the container using the `--bind` flag. For example, one may imagine the following little exercise : create a file on the host machine, make it available inside the container, create a copy of it, and then retrieve the copy on the host machine.
+It is likely, for instance when playing with the previous options, that the directory containing possibly required input or output files can not be accessed from the container ! It is then required to manually mount it to the container using the `--bind` flag. For example, one may imagine the following little exercise : create a file on the host machine, make it available inside the container, create a copy of it inside the container, and then retrieve the copy on the host machine.
 ```
 # Creating a file on host
 date > $PWD/test-host.txt
