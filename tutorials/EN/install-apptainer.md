@@ -78,7 +78,7 @@ sudo yum install -y apptainer
 ```
 
 ## Install without superuser privileges
-For non-privileged users, a scripts is made available to install pre-built binaries together with several utilitaries mandatory to run Apptainer. The script works for Red Hat Enterprise Linux-derived systems, and also for Fedora, SUSE/OpenSUSE, Debian, and Ubuntu. It is however required to have access to `curl` `rmp2cpio` and `cpio` through the `$PATH` environment variable).
+For non-privileged users, a scripts is made available to install pre-built binaries together with several utilitaries mandatory to run Apptainer. The script works for Red Hat Enterprise Linux-derived systems, and also for Fedora, SUSE/OpenSUSE, Debian, and Ubuntu. It is however required to have access to `curl` `rpm2cpio` and `cpio` through the `$PATH` environment variable).
 
 One can run the script using :
 ```

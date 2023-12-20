@@ -79,7 +79,7 @@ sudo yum install -y apptainer
 ```
 
 ## Installation sans droits superutilisateur
-Pour les utilisateurs sans droits administrateurs sur leur machine, il est également possible de recourir à un script installant des binaires pré-construits, comprenant une variété d'utilitaires dont Apptainer dépend. Le script fonctionne pour les distributions dérivées de Red Hat Enterprise Linux, mais aussi pour Fedora, SUSE/OpenSUSE, Debian, et Ubuntu. Il est toutefois nécessaire d'avoir accès (via la variable `$PATH`) aux outils suivants : `curl` `rmp2cpio` `cpio`.
+Pour les utilisateurs sans droits administrateurs sur leur machine, il est également possible de recourir à un script installant des binaires pré-construits, comprenant une variété d'utilitaires dont Apptainer dépend. Le script fonctionne pour les distributions dérivées de Red Hat Enterprise Linux, mais aussi pour Fedora, SUSE/OpenSUSE, Debian, et Ubuntu. Il est toutefois nécessaire d'avoir accès (via la variable `$PATH`) aux outils suivants : `curl` `rpm2cpio` `cpio`.
 
 Pour exécuter ce script, lancez la commande suivante :
 ```
