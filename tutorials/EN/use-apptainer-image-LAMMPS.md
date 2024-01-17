@@ -114,7 +114,7 @@ apptainer run --containall --bind $PWD:$HOME \ # Mounting the current directory 
 ```
 in the case where LAMMPS input files are in the current directory (`$PWD`).
 
-### Potentiels interatomiques
+### Interatomic potentials
 In LAMMPS, atom interactions are modeled using force fields (or interatomic potentials), and their parameters are specified within formatted files. The type of interaction to apply (i.e., the type of file to look for) in each case is explicitly stated in the main LAMMPS input file.
 
 For example, in our case, the in.file input file instructs LAMMPS to model Silicon/Carbon interactions using the parameters found in `SiC.meam`.
@@ -148,7 +148,7 @@ apptainer run --env LAMMPS_POTENTIALS=$HOME/Documents/softs/lammps/potentials/\
 ```
 
 * However, make sure to ensure that this new directory is also accessible within the container. For example:
-``````
+```
 # By default, /opt/lammps-potentials is not shared between the host and the container
 # We have to mount this directory with --bind.
 apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redefining $LAMMPS_POTENTIALS
