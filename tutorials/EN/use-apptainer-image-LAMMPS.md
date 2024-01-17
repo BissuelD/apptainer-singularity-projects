@@ -14,6 +14,15 @@ mkdir -p $HOME/apptainer-images
 mv lammps.sif $HOME/apptainer-images/lammps.sif
 ```
 
+To illustrate the various commands, a set of LAMMPS input files is available in the form of an archive via [this link](https://www.tutoriels.diamond.fr/lammps-inputs). The archive contains the necessary files to perform molecular dynamics calculations for a Silicon/Carbon hybrid system, where atom interactions are modeled using a *Modified Embedded Atom Method* (MEAM) potential. The files included are as follows:
+
+* `data.meam` is a file containing the positions of Silicon and Carbon atoms, as well as the definition of the simulation box.
+* `in.file` is the main LAMMPS input script. It defines the variables required by LAMMPS and provides the necessary instructions to perform molecular dynamics calculations.
+* `library.meam` is a file of generic parameters used by the MEAM potential to represent *default* interactions between a wide variety of chemical elements.
+* `SiC.meam` is also a file defining MEAM interaction parameters. Unlike the previous file, it specifically defines interactions between Silicon and Carbon atoms.
+
+In this tutorial, we will assume that the input files contained in this archive are in the current directory:
+
 ## TL; DR One liner command
 For impatient folks, here is how to launch a parallel LAMMPS computation using the container image (previously downloaded and stored in `$HOME/apptainer-images/lammps.sif`). In the case where the current directory contains all  mandatory LAMMPS input files :
 ```
@@ -102,30 +111,38 @@ apptainer run --containall --bind $PWD:$HOME \ # Mounting the current directory 
 in the case where LAMMPS input files are in the current directory (`$PWD`).
 
 ### Potentiels interatomiques
-In LAMMPS, interactions between atoms are defined through force fields (or interatomic potentials). Their parameters are specified inside formatted files. The type of interaction to be applied (*ie.* the type of file to look for) is explicited in LAMMPS main input file (*eg.* named `in.file`). At runtime, the code looks for the corresponding files in the following order :
+In LAMMPS, atom interactions are modeled using force fields (or interatomic potentials), and their parameters are specified within formatted files. The type of interaction to apply (i.e., the type of file to look for) in each case is explicitly stated in the main LAMMPS input file.
+
+For example, in our case, the in.file input file instructs LAMMPS to model Silicon/Carbon interactions using the parameters found in `SiC.meam`.
+
+During execution, the code searches for files describing the interactions in the following order:
 
 * First, it looks for a file corresponding (location, potential type, name, ...) to what's defined in the main input (`in.file`).
-* If nothing is found that corresponds to the instructions of the main input (`in.file`), the code then looks in the directory defined by the `$LAMMPS_POTENTIALS` environment variable.
+If nothing is found at the specified path in the main input file (`in.file``), for example, if the file has been inadvertently renamed:
+```
+mv SiC.meam old.meam # inadvertent renaming
+```
+then the code searches in the directory designated by the environment variable $LAMMPS_POTENTIALS.
 
 For this specific container image, the `$LAMMPS_POTENTIALS` variable points inside the container to `/usr/share/lammps/potentials`. This directory contains the default potenital files included with the version LAMMPS present in the container.
 
-In the (quite rare) case where one has another set of potential they wish to use by default, it is however possible to alter this behaviour. This is achievable in two ways :
+In the (quite rare) case where one has another set of potential they wish to use by default (in `$HOME/Documents/softs/lammps/potentials/` for example), it is however possible to alter this behaviour. This is achievable in two ways :
 
 * On one hand, we can overwite the content of `/usr/share/lammps/potentials` by mounting another directory from the host machine to this very path (using `--bind`). In such cases, `$LAMMPS_POTENTIALS` still points towards `/usr/share/lammps/potentials` but the content of this directory is overwritten.
 ```
 # We overwrite /usr/share/lammps/potentials in the container.
-apptainer run --bind /new/path/with/potential/on/host/:/usr/share/lammps/potentials \
+apptainer run --bind $HOME/Documents/softs/lammps/potentials/:/usr/share/lammps/potentials \
   $HOME/apptainer-images/lammps.sif -in in.file
 ```
 
-* On the other hand, one can also redefine `$LAMMPS_POTENTIALS` (using `--env`) to make it point to another path from the host machine (just be sure to also have it available in the container). Here, `$LAMMPS_POTENTIALS` is modified and the code looks for potentials in the newly defined path.
+* On the other hand, one can also redefine `$LAMMPS_POTENTIALS` (using `--env`) to make it point to another path from the host machine . Here, `$LAMMPS_POTENTIALS` is modified and the code looks for potentials in the newly defined path.
 ```
-# If no isolation option is used, $HOME/lammps-potentials
+# If no isolation option is used, $HOME/Documents/softs/lammps/potentials/
 # is shared with the container.
-apptainer run --env LAMMPS_POTENTIALS=$HOME/lammps-potentials \
+apptainer run --env LAMMPS_POTENTIALS=$HOME/Documents/softs/lammps/potentials/\
   $HOME/apptainer-images/lammps.sif -in in.file
 
-
+* However, make sure to ensure that this new directory is also accessible within the container. For example:
 # By default, /opt/lammps-potentials is not shared between the host and the container
 # We have to mount this directory with --bind.
 apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redefining $LAMMPS_POTENTIALS
@@ -140,18 +157,18 @@ How to use the container image to run a sequential LAMMPS computation ?
 
 **Data**
 > * The image is located at : `$HOME/apptainer-images/lammps.sif`
-> * Input files (including the main input file `in.exercice`) are located in the current directory : `$PWD`
+> * Input files (including the main input file `in.file`) are located in the current directory : `$PWD`
 
 Possible answers :
-* `apptainer run $HOME/apptainer-images/lammps.sif -in in.exercice`
-* or `apptainer exec $HOME/apptainer-images/lammps.sif lmp_mpi -in in.exercice`
-* or `$HOME/apptainer-images/lammps.sif -in in.exercice`
+* `apptainer run $HOME/apptainer-images/lammps.sif -in in.file`
+* or `apptainer exec $HOME/apptainer-images/lammps.sif lmp_mpi -in in.file`
+* or `$HOME/apptainer-images/lammps.sif -in in.file`
 * or
 ```
 apptainer exec \
   --env OMP_NUM_THREADS=1 \
   $HOME/apptainer-images/lammps.sif \
-  mpirun -np 1 lmp_mpi -in in.exercice
+  mpirun -np 1 lmp_mpi -in in.file
 ```
 
 
@@ -160,13 +177,13 @@ How to use the container image to run a LAMMPS computation (1 **OpenMP** thread 
 
 **Data**
 > * The image is located at : `$HOME/apptainer-images/lammps.sif`
-> * Input files (including the main input file `in.exercice`) are located in the current directory : `$PWD`
+> * Input files (including the main input file `in.file`) are located in the current directory : `$PWD`
 
 Example of a possible answer :
 ```
 apptainer exec \
   $HOME/apptainer-images/lammps.sif \
-  mpirun -np 16 lmp_mpi -in in.exercice
+  mpirun -np 16 lmp_mpi -in in.file
 ```
 where `--env OMP_NUM_THREADS=1` is implicit and use by default by the container. 
 
@@ -175,7 +192,7 @@ where `--env OMP_NUM_THREADS=1` is implicit and use by default by the container.
 
 **Data**
 > * The image is located at : `$HOME/apptainer-images/lammps.sif`
-> * Input files (including the main input file `in.exercice`) are located at : `$HOME/lammps-examples/exercice/`
+> * Input files (including the main input file `in.file`) are located at : `$HOME/lammps-examples/exercice/`
 
 Example of a possible answer :
 ```
@@ -184,5 +201,5 @@ apptainer exec \
   --env OMP_NUM_THREADS=2 \
   --bind $HOME/lammps-examples/exercice/=$HOME \
   $HOME/apptainer-images/lammps.sif \
-  mpirun -np 8 lmp_mpi -in in.exercice
+  mpirun -np 8 lmp_mpi -in in.file
 ```
