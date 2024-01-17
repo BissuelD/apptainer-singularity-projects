@@ -22,6 +22,10 @@ To illustrate the various commands, a set of LAMMPS input files is available in 
 * `SiC.meam` is also a file defining MEAM interaction parameters. Unlike the previous file, it specifically defines interactions between Silicon and Carbon atoms.
 
 In this tutorial, we will assume that the input files contained in this archive are in the current directory:
+```
+tar -xzf DIAMOND-tutorial.tar.gz # Extracts the content of the archive, creates ./tutorial
+cd ./tutorial
+```
 
 ## TL; DR One liner command
 For impatient folks, here is how to launch a parallel LAMMPS computation using the container image (previously downloaded and stored in `$HOME/apptainer-images/lammps.sif`). In the case where the current directory contains all  mandatory LAMMPS input files :
@@ -144,7 +148,7 @@ apptainer run --env LAMMPS_POTENTIALS=$HOME/Documents/softs/lammps/potentials/\
 ```
 
 * However, make sure to ensure that this new directory is also accessible within the container. For example:
-```
+``````
 # By default, /opt/lammps-potentials is not shared between the host and the container
 # We have to mount this directory with --bind.
 apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redefining $LAMMPS_POTENTIALS
