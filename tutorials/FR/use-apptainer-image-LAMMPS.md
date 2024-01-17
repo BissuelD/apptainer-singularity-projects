@@ -19,6 +19,7 @@ Pour illustrer les différentes commandes, un jeu de fichiers d'entrée LAMMPS e
 * `in.file` est le script d'entrée principal de LAMMPS. Il définit les variables requises par LAMMPS et donne les instructions nécessaires pour effectuer un calcul de dynamique moléculaire.
 * `library.meam` est un fichier de paramètres génériques utilisé par le potentiel MEAM pour représenter les interactions *par défaut* entre une large variété d'éléments chimiques.
 * `SiC.meam` est également un fichier définissant les paramètres des interactions MEAM ; contrairement au fichier précédent, il définit spécifiquement les interactions entre atomes de Silicium et de Carbone.
+
 Dans ce tutoriel, on supposera que les fichiers d'entrée contenus dans cette archive sont dans le répertoire courant :
 ```
 tar -xzf DIAMOND-tutorial.tar.gz # Extrait le contenu de l'archive, créée ./tutorial
@@ -143,8 +144,10 @@ apptainer run --bind $HOME/Documents/softs/lammps/potentials/:/usr/share/lammps/
 # est accessible dans le conteneur.
 apptainer run --env LAMMPS_POTENTIALS=$HOME/Documents/softs/lammps/potentials/ \
   $HOME/apptainer-images/lammps.sif -in in.file
+```
 
 * Attention cependant à bien s'assurer que ce nouveau répertoire est également accessible dans le conteneur. Par exemple : 
+```
 # Par défaut, /opt/lammps-potentials n'est pas partagée entre l'hôte et le conteneur.
 # Il faut donc monter ce répertoire avec --bind.
 apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redéfinition de $LAMMPS_POTENTIALS

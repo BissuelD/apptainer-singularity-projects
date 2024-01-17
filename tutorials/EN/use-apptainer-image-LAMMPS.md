@@ -141,8 +141,10 @@ apptainer run --bind $HOME/Documents/softs/lammps/potentials/:/usr/share/lammps/
 # is shared with the container.
 apptainer run --env LAMMPS_POTENTIALS=$HOME/Documents/softs/lammps/potentials/\
   $HOME/apptainer-images/lammps.sif -in in.file
+```
 
 * However, make sure to ensure that this new directory is also accessible within the container. For example:
+```
 # By default, /opt/lammps-potentials is not shared between the host and the container
 # We have to mount this directory with --bind.
 apptainer run --env LAMMPS_POTENTIALS=/opt/lammps-potentials \ # redefining $LAMMPS_POTENTIALS
