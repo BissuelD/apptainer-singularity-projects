@@ -1,5 +1,6 @@
 Bootstrap: localimage
-From: /gnu/store/kvxkh1sc2l5xyazs8cn9i83p4a8c9byz-paraview-bash-squashfs-pack.gz.squashfs
+#From: /gnu/store/kvxkh1sc2l5xyazs8cn9i83p4a8c9byz-paraview-bash-squashfs-pack.gz.squashfs
+From: /gnu/store/22d5i5plfqc7cs2zf0j6pp0vdpga9sd8-myparaview-bash-minimal-squashfs-pack.gz.squashfs
 
 %files
     empty_file /etc/passwd # to remove warning about /etc/passwd
@@ -10,7 +11,7 @@ From: /gnu/store/kvxkh1sc2l5xyazs8cn9i83p4a8c9byz-paraview-bash-squashfs-pack.gz
    #export DISPLAY=:0:1
 
 %help
-    This container embedds ParaView (version 5.11.1).
+    This container embedds ParaView (version 5.12.0-RC2).
     For more information about this image, please run "apptainer inspect <this-image>"
 
     As ParaView is a visualization tools, it requires additionnal information
@@ -36,6 +37,6 @@ From: /gnu/store/kvxkh1sc2l5xyazs8cn9i83p4a8c9byz-paraview-bash-squashfs-pack.gz
 %labels
     Owner Copyright (c) 2000 Kitware Inc.
     Author dylan.bissuel@univ-lyon1.fr
-    Version 5.11.1-MPI-Linux-Python3.10-x86_64
-    MyLabel Paraview-version-5.12.0-RC1-MPI-Linux-Python3.10-x86_64
+    Version 5.12.0-RC2
+    MyLabel Paraview-version-5.12.0-RC2
     EntryPoint https://www.paraview.org/
