@@ -3,49 +3,84 @@ From: python:3.9-slim
 Stage: devel
 
 %files
-    ../../simple-adsorption-workflow /home/app
-
+    $HOME/Documents/DIADEM/MOFLearning/simple-adsorption-workflow /home/app
+    $HOME/Documents/DIADEM/MOFLearning/zeo++/zeo++-0.3.tar /opt/zeo/
+    $HOME/Documents/DIADEM/MOFLearning/openbabel /opt/openbabel
+    $HOME/Documents/DIADEM/MOFLearning/raspa-v2.0.48/RASPA2-2.0.48.tar.gz /opt/raspa/
+    
 %post
+    # Before anything, updater and main packages
     apt-get -y update
-    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
+    apt-get install -y build-essential libxrender1 libxext6 automake libtool --no-install-recommends
+    # Installing cmake
+    apt-get install -y cmake --no-install-recommends
+    # Installing pip requirements
     cd /home/app
     pip install --no-cache-dir -r requirements.txt
-    tar xvf zeo++-0.3.tar
-    rm -rf zeo++-0.3.tar
+    # Cleaning
     rm -rf /home/app/apptainer
-    cd /home/app/zeo++-0.3/voro++/src
+    # Openbabel
+    cd /opt/openbabel
+    mkdir build
+    cd build
+    cmake ..
+    make -j8
+    #make test --output-on-failure
+    make install
+    # RASPA2
+    cd /opt/raspa
+    tar -xzf RASPA2-2.0.48.tar.gz
+    cd RASPA2-2.0.48
+    mkdir m4 
+    aclocal
+    autoreconf -i
+    automake --add-missing
+    autoconf
+    ./configure --prefix=/opt/raspa/RASPA2-2.0.48
     make
-    cd /home/app/zeo++-0.3
+    make install
+    # What about the PARAMETERS ????
+    # ZEO++
+    # First, build voro++
+    cd /opt/zeo
+    tar xf zeo++-0.3.tar
+    rm -rf zeo++-0.3.tar
+    cd /opt/zeo/zeo++-0.3/voro++/src
+    make
+    # Then build zeo++
+    cd /opt/zeo/zeo++-0.3
     make
 
 
-Bootstrap: docker
-From: python:3.9-slim
-Stage: final
+#Bootstrap: docker
+#From: python:3.9-slim
+#Stage: final
 
-%files from devel
-    /home/app /home/app
+#%files from devel
+#    /home/app /home/app
+#    /usr/local /usr/local
 
-%environment
-    export RASPA_PARENT_DIR=/usr/local/lib/python3.9/site-packages/RASPA2
-    export RASPA_DIR=$RASPA_PARENT_DIR/simulations
-    export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
-    export LD_LIBRARY_PATH=$RASPA_DIR/lib
-    export ZEO_DIR=/home/app/zeo++-0.3
+#%environment
+#    # Verfiy / respecify all those
+#    export RASPA_PARENT_DIR=/usr/local/lib/python3.9/site-packages/RASPA2
+#    export RASPA_DIR=$RASPA_PARENT_DIR/simulations
+#    export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
+#    export LD_LIBRARY_PATH=$RASPA_DIR/lib
+#    export ZEO_DIR=/home/app/zeo++-0.3
 
-%post
-    apt-get -y update
-    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
-    pip install --no-cache-dir -r /home/app/requirements.txt
+#%post
+#    apt-get -y update
+#    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
+#    pip install --no-cache-dir -r /home/app/requirements.txt
 
-%runscript
-    cd /home/app
-    python3 ./example_adsorption_workflow.py -t -o /tmp/tests
+#%runscript
+#    cd /home/app
+#    python3 ./example_adsorption_workflow.py -t -o /tmp/tests
 
-%labels
-    Owner Arthur Hardiagon
-    Author dylan.bissuel@univ-lyon1.fr
-    Version v0.0.1
-    MyLabel simple-adsorption-workflow
-    EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
+#%labels
+#    Owner Arthur Hardiagon
+#    Author dylan.bissuel@univ-lyon1.fr
+#    Version v0.0.2
+#    MyLabel simple-adsorption-workflow
+#    EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
 

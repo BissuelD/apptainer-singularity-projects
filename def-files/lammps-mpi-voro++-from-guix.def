@@ -1,18 +1,21 @@
 Bootstrap: localimage
-From: /gnu/store/c2xq9p44b9klqrg5z5mmch44pywzh95k-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
+#From: /gnu/store/c2xq9p44b9klqrg5z5mmch44pywzh95k-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
 #From: /gnu/store/id6kvfkmlwriagfj0068af2153y8f069-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
+# Version : stable_2Aug2023_update2
+From: /gnu/store/846384q2rafxfklyan8valaag0gwhhiz-bash-minimal-mylammps_mpi-openmpi-squashfs-pack.gz.squashfs
 
 %files
     empty_file /etc/passwd # to remove warning about /etc/passwd
     empty_file /etc/group  # to remove warning about /etc/group
-    $HOME/Documents/softs/sourcecodes/lammps/lammps-patch_2Jul2021/potentials/ /usr/share/lammps/potentials
+    #$HOME/Documents/softs/sourcecodes/lammps/lammps-patch_2Jul2021/potentials/ /usr/share/lammps/potentials
+    $HOME/Documents/softs/lammps/lammps-stable_2Aug2023_update2/potentials/ /usr/share/lammps/potentials
 
 %environment
     export OMPI_MCA_plm_rsh_agent=
     export LAMMPS_POTENTIALS=/usr/share/lammps/potentials
 
 %help
-    This container embedds LAMMPS (2 July 2021 patch) with OpenMPI support.
+    This container embedds LAMMPS (2 August 2023 stable version, update 2) with OpenMPI support.
     For more information about this image, please run "apptainer inspect <this-image>"
 
     If you use "apptainer run <this-image>", the main executable "lmp_mpi" will be called.
@@ -33,6 +36,6 @@ From: /gnu/store/c2xq9p44b9klqrg5z5mmch44pywzh95k-mylammps_mpi-bash-openmpi-squa
 %labels
     Owner Sandia Corporation
     Author dylan.bissuel@univ-lyon1.fr
-    Version 2 Jul 2021
-    Label LAMMPS_patch_2Jul2021
+    Version 2 Aug 2023 stable update 2
+    Label LAMMPS_stable_2Aug2023_update2
     EntryPoint https://www.lammps.org/
