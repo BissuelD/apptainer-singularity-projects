@@ -30,6 +30,7 @@ Stage: devel
     # RASPA2
     cd /opt/raspa
     tar -xzf RASPA2-2.0.48.tar.gz
+    rm -rf RASPA2-2.0.48.tar.gz
     cd RASPA2-2.0.48
     mkdir m4 
     aclocal
@@ -39,6 +40,7 @@ Stage: devel
     ./configure --prefix=/opt/raspa/RASPA2-2.0.48
     make
     make install
+    # ^ ./bin/simulmate && ./lib/* ==> Think I can remove the rest ?
     # What about the PARAMETERS ????
     # ZEO++
     # First, build voro++
