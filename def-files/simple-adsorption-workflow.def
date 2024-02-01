@@ -3,36 +3,32 @@ From: python:3.9-slim
 Stage: devel
 
 %files
-    $HOME/Documents/DIADEM/MOFLearning/simple-adsorption-workflow /home/app
+    $HOME/Documents/DIADEM/MOFLearning/simple-adsorption-workflow-0.0.2.tar.gz /home/
     $HOME/Documents/DIADEM/MOFLearning/zeo++/zeo++-0.3.tar /opt/zeo/
-    $HOME/Documents/DIADEM/MOFLearning/openbabel /opt/openbabel
     $HOME/Documents/DIADEM/MOFLearning/raspa-v2.0.48/RASPA2-2.0.48.tar.gz /opt/raspa/
     
 %post
     # Before anything, updater and main packages
     apt-get -y update
-    apt-get install -y build-essential libxrender1 libxext6 automake libtool --no-install-recommends
+    apt-get install -y build-essential libxrender1 libxext6 libeigen3-dev libpcre2-dev --no-install-recommends
     # Installing cmake
-    apt-get install -y cmake --no-install-recommends
+    apt-get install -y cmake automake libtool --no-install-recommends
     # Installing pip requirements
-    cd /home/app
+    cd /home
+    tar xzf simple-adsorption-workflow-0.0.2.tar.gz
+    rm -rf simple-adsorption-workflow-0.0.2.tar.gz
+    mv simple-adsorption-workflow-0.0.2 app
+    cd app
     pip install --no-cache-dir -r requirements.txt
-    # Cleaning
-    rm -rf /home/app/apptainer
     # Openbabel
-    cd /opt/openbabel
-    mkdir build
-    cd build
-    cmake ..
-    make -j8
-    #make test --output-on-failure
-    make install
+    pip install --no-cache-dir openbabel-wheel==3.1.1.17
     # RASPA2
     cd /opt/raspa
     tar -xzf RASPA2-2.0.48.tar.gz
     rm -rf RASPA2-2.0.48.tar.gz
     cd RASPA2-2.0.48
-    mkdir m4 
+    rm -rf autom4te.cache
+    mkdir m4
     aclocal
     autoreconf -i
     automake --add-missing
@@ -40,8 +36,7 @@ Stage: devel
     ./configure --prefix=/opt/raspa/RASPA2-2.0.48
     make
     make install
-    # ^ ./bin/simulmate && ./lib/* ==> Think I can remove the rest ?
-    # What about the PARAMETERS ????
+    python3 setup.py install
     # ZEO++
     # First, build voro++
     cd /opt/zeo
@@ -54,35 +49,47 @@ Stage: devel
     make
 
 
-#Bootstrap: docker
-#From: python:3.9-slim
-#Stage: final
+Bootstrap: docker
+From: python:3.9-slim
+Stage: final
 
-#%files from devel
-#    /home/app /home/app
-#    /usr/local /usr/local
+%files from devel
+    /home/app /home/app
+    /usr/local /usr/local
+    /opt/zeo/zeo++-0.3 /opt/zeo/zeo++-0.3
+    /opt/raspa/RASPA2-2.0.48 /opt/raspa/RASPA2-2.0.48
 
-#%environment
-#    # Verfiy / respecify all those
-#    export RASPA_PARENT_DIR=/usr/local/lib/python3.9/site-packages/RASPA2
-#    export RASPA_DIR=$RASPA_PARENT_DIR/simulations
-#    export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
-#    export LD_LIBRARY_PATH=$RASPA_DIR/lib
-#    export ZEO_DIR=/home/app/zeo++-0.3
 
-#%post
-#    apt-get -y update
-#    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
-#    pip install --no-cache-dir -r /home/app/requirements.txt
+%environment
+    export RASPA_PARENT_DIR=/opt/raspa
+    export RASPA_DIR=$RASPA_PARENT_DIR/RASPA2-2.0.48
+    export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
+    export LD_LIBRARY_PATH=$RASPA_DIR/lib
+    export ZEO_DIR=/opt/zeo/zeo++-0.3
+    export PACKAGE_DIR=/home/app
 
-#%runscript
-#    cd /home/app
-#    python3 ./example_adsorption_workflow.py -t -o /tmp/tests
+%post
+    apt-get -y update
+    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
+    apt-get install -y libeigen3-dev libpcre2-dev --no-install-recommends
+    pip install --no-cache-dir -r /home/app/requirements.txt
+    pip install --no-cache-dir openbabel-wheel==3.1.1.17
 
-#%labels
-#    Owner Arthur Hardiagon
-#    Author dylan.bissuel@univ-lyon1.fr
-#    Version v0.0.2
-#    MyLabel simple-adsorption-workflow
-#    EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
+%test
+    cd /home/app
+    python example_adsorption_workflow.py run   -t             -o /tmp/tests1
+    python example_adsorption_workflow.py run   -t2            -o /tmp/tests2
+    python example_adsorption_workflow.py merge -t3            -o /tmp/tests3
+    python example_adsorption_workflow.py run   --test-charges -o /tmp/tests4
 
+%runscript
+    cd /home/app
+    python example_adsorption_workflow.py run   -t  -o /tmp/tests1
+    
+
+%labels
+    Owner Arthur Hardiagon
+    Author dylan.bissuel@univ-lyon1.fr
+    Version v0.0.2
+    MyLabel simple-adsorption-workflow
+    EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
