@@ -3,7 +3,7 @@ From: python:3.9-slim
 Stage: devel
 
 %files
-    $HOME/Documents/DIADEM/MOFLearning/simple-adsorption-workflow-0.0.3.tar.gz /home/
+    $HOME/Documents/DIADEM/MOFLearning/simple-adsorption-workflow-0.0.3.tar.gz /opt/
     $HOME/Documents/DIADEM/MOFLearning/zeo++/zeo++-0.3.tar /opt/zeo/
     $HOME/Documents/DIADEM/MOFLearning/raspa-v2.0.48/RASPA2-2.0.48.tar.gz /opt/raspa/
     
@@ -14,7 +14,7 @@ Stage: devel
     # Installing cmake
     apt-get install -y automake libtool --no-install-recommends
     # Installing pip requirements
-    cd /home
+    cd /opt
     tar xzf simple-adsorption-workflow-0.0.3.tar.gz
     rm -rf simple-adsorption-workflow-0.0.3.tar.gz
     mv simple-adsorption-workflow-0.0.3 app
@@ -54,7 +54,7 @@ From: python:3.9-slim
 Stage: final
 
 %files from devel
-    /home/app /home/app
+    /opt/app /opt/app
     /usr/local /usr/local
     /opt/zeo/zeo++-0.3 /opt/zeo/zeo++-0.3
     /opt/raspa/RASPA2-2.0.48 /opt/raspa/RASPA2-2.0.48
@@ -66,31 +66,40 @@ Stage: final
     export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
     export LD_LIBRARY_PATH=$RASPA_DIR/lib
     export ZEO_DIR=/opt/zeo/zeo++-0.3
-    export PACKAGE_DIR=/home/app
+    export PACKAGE_DIR=/opt/app
     export SA_WORKFLOW_COMMIT_HASH="e10fa6257269157b0f037acb554a4f8e41d108bd"
+    export PYTHONNOUSERSITE=1
 
 %post
     apt-get -y update
     apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
-    pip install --no-cache-dir -r /home/app/requirements.txt
+    pip install --no-cache-dir -r /opt/app/requirements.txt
     pip install --no-cache-dir openbabel-wheel==3.1.1.17
 
 %test
+    rm -rf /tmp/tests*
     echo "[STARTING TESTS :] cd $PACKAGE_DIR"
     cd $PACKAGE_DIR
     echo "[NEW TEST :] python $PACKAGE_DIR/example_adsorption_workflow.py run -t -o /tmp/tests1"
-    python example_adsorption_workflow.py run -t -o /tmp/tests1
+    python $PACKAGE_DIR/example_adsorption_workflow.py run -t -o /tmp/tests1
+    echo "[TEST FINISHED] - cleaning outputs in /tmp"
+    rm -rf /tmp/tests*
     echo "[NEW TEST :] python $PACKAGE_DIR/example_adsorption_workflow.py run -t2 -o /tmp/tests2"
-    python example_adsorption_workflow.py run -t2 -o /tmp/tests2
+    python $PACKAGE_DIR/example_adsorption_workflow.py run -t2 -o /tmp/tests2
+    echo "[TEST FINISHED] - cleaning outputs in /tmp"
+    rm -rf /tmp/tests*
     echo "[NEW TEST :] python $PACKAGE_DIR/example_adsorption_workflow.py merge -t3 -o /tmp/tests3"
-    python example_adsorption_workflow.py merge -t3 -o /tmp/tests3
+    python $PACKAGE_DIR/example_adsorption_workflow.py merge -t3 -o /tmp/tests3
+    echo "[TEST FINISHED] - cleaning outputs in /tmp"
+    rm -rf /tmp/tests*
     echo "[NEW TEST :] python $PACKAGE_DIR/example_adsorption_workflow.py run --test-charges -o /tmp/tests4"
-    python example_adsorption_workflow.py run --test-charges -o /tmp/tests4
-    echo "[TESTS FINISHED] - cleaning outputs in /tmp"
+    python $PACKAGE_DIR/example_adsorption_workflow.py run --test-charges -o /tmp/tests4
+    echo "[TEST FINISHED] - cleaning output in /tmp"
     rm -rf /tmp/tests*
 
 %runscript
-    python /home/app/example_adsorption_workflow.py run
+    python /opt/app/example_adsorption_workflow.py run $*
+
   
 %help
     This container image embedds the "simple adsorption workflow", version v0.0.3 ;
@@ -113,7 +122,7 @@ Stage: final
         * "apptainer shell<this-image>" which allows you to enter an interactive shell inside a container.
 
     If you use "apptainer run <this-image>", the folloing command will be called :
-        "python /home/app/example_adsorption_workflow.py run"
+        "python /opt/app/example_adsorption_workflow.py run"
     which runs the default calculation of the workflow.
     If you want to specify either the input file or the output file, you can append
         "-i <path/to/myinput>.json" or "-o <path/to/data/directory>"
@@ -121,7 +130,7 @@ Stage: final
 
     If you use "apptainer exec <this-image> <command>", you will execute <command> (whatever it is) inside
     the container. It can be useful for instance if you want to perform a merge operation :
-        "apptainer exec <this-image> python /home/app/example_adsorption_workflow.py merge -i run<index1>.json run<index2>.json -o ./"
+        "apptainer exec <this-image> python /opt/app/example_adsorption_workflow.py merge -i run<index1>.json run<index2>.json -o ./"
 
     You can also enter an interactive shell within the container with "apptainer shell <this-image>".
 
@@ -135,7 +144,7 @@ Stage: final
     For instance, assuming you want to run a fully-isolated computation with the input "input.json"
     file in "./input" and gather the output in "./output" :
         "apptainer exec --containall --bind $PWD:/tmp <this-image> \
-            python /home/app/example_adsorption_workflow.py run -i /tmp/input/input.json -o /tmp/output"
+            python /opt/app/example_adsorption_workflow.py run -i /tmp/input/input.json -o /tmp/output"
 
 %labels
     Owner Arthur Hardiagon
