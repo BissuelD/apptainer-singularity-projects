@@ -1,0 +1,84 @@
+Bootstrap: docker
+From: debian:stable-slim
+Stage: devel
+
+%files
+    $HOME/Documents/softs/ovito-basic-3.9.2-x86_64.tar.xz /opt/ovito-basic-3.9.2-x86_64.tar.xz
+
+%post
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get install -y xz-utils --no-install-recommends
+    cd /opt
+    tar xJfv ovito-basic-3.9.2-x86_64.tar.xz
+    rm ovito-basic-3.9.2-x86_64.tar.xz
+
+Bootstrap: docker
+From: debian:stable-slim
+Stage: final
+
+%files from devel
+    /opt/ovito-basic-3.9.2-x86_64 /opt/ovito-basic-3.9.2-x86_64
+
+%environment
+    #export DISPLAY=$(w -h $USER | awk '$2 ~ /:[0-9.]*/{print $2}')
+    #export DISPLAY=$(who | awk '$2 ~ /:[0-9.]*/{print $2}')
+    #D=$(who | awk '$2 ~ /:[0-9.]*/{print $2}') && echo "a" && echo $D && DISPLAY=${D:-'default'}
+    #export DISPLAY=:0
+
+%post
+    cd /opt/ovito-basic-3.9.2-x86_64/bin
+    for i in *; do ln -sf $(readlink -f $i) /usr/local/bin/$i; done
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get install -y  \
+        libglx0         \
+        libopengl0      \
+        libfontconfig   \
+        libglib2.0-0    \
+        libxcb-cursor0  \
+        libxcb-icccm4   \
+        libxcb-keysyms1 \
+        libxcb-shape0   \
+        libxcb-xkb1     \
+        libsm6          \
+        libdbus-1-3     \
+        --no-install-recommends
+
+%runscript
+    /usr/local/bin/ovito $*
+
+%test
+    /opt/ovito-basic-3.9.2-x86_64/bin/ovito
+
+%help
+    This container embedds the free version of Ovito Basic (version 3.9.2).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    As Ovito is a visualization tools, it requires additionnal information
+    to successfully use your graphical ressources through the $DISPLAY
+    environment variable. As such, you should call the present image as :
+    $ apptainer run <OPTIONS> \
+       --env DISPLAY=$DISPLAY \
+       <this-image>
+    
+    If you want to build a script which automatizes this graphical ressources
+    management, you can use something like the following command.
+    
+    cat > my-ovito-script.sh << 'EOF'
+        apptainer run <OPTIONS>    \
+            --env DISPLAY=$DISPLAY \
+            <path-to-this-image>/<this-image>
+    EOF
+    
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note few basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+%labels
+    Owner Copyright (c) OVITO GmbH, Germany.
+    License MIT License
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 3.9.2-86_64
+    MyLabel Ovito-Basic-version-3.9.2-86_64
+    EntryPoint https://www.ovito.org/
