@@ -30,3 +30,36 @@ Pour les personnes pressées, voici comment lancer l'outil de visualisation Ovit
 ```
 apptainer run --env DISPLAY=$DISPLAY $HOME/apptainer-images/ovito.sif <input.file>
 ```
+
+## Détail d'utilisation du conteneur Ovito
+Cette section présente les différentes manières d'utiliser l'image Ovito. Pour plus de détails sur les commandes Apptainer, veuillez vous référer à [ce tutoriel](https://www.apptainer-images.diamond.fr/apptainer-tutorial%basic-commands/FR).
+
+Pour exécuter Ovito sans aucune conteneurisation, on utiliserait la commande :
+```
+ovito <input.file.1> <input.file.2> ...
+```
+où les fichiers d'entrée `input.file.X` sont optionnels et permettent de charger la ou les configurations que l'on veut afficher directement au lancement de l'application.
+
+Avec Apptainer, le fonctionnement est similaire, à quelques détails près :
+* il faut appeler Apptainer pour lancer le conteneur (une ligne de commande).
+* il faut s'assurer que le conteneur a bien accès aux ressources graphiques de votre machine (une option dans la ligne de commande précedente).
+* si on souhaite isoler le conteneur de notre machine (une autre option), alors il faut s'assurer de pouvoir accéder aux fichiers que l'on souhaite charger dans Ovito.
+
+Chacun de ces points est détaillé dans l'une des sections suivantes.
+
+### Lancer le conteneur Ovito avec Apptainer
+TEXT
+
+### Partage des ressources graphiques
+TEXT
+
+### Isolation et accès aux fichiers
+TEXT
+
+## Exercices
+
+### Exercice 1
+
+### Exercice 2
+
+### Exercice 3
