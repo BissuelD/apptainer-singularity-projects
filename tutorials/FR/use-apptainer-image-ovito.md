@@ -2,7 +2,7 @@
 
 En préalable de ces explications, il est nécessaire d'avoir installé Apptainer sur votre machine ; voir [ce lien](https://www.apptainer-images.diamond.fr/install-apptainer/FR) pour plus de détails.
 
-Ce tutoriel détaille l'utilisation de l'image de conteneur du code Ovito téléchargeable à [cette adresse](https://www.apptainer-images.diamond.fr/ovito). En suivant ce lien, vous récupérez une image Apptainer (format de fichier `.sif`) qui vous permattra de créer des conteneurs à même de faire tourner LAMMPS.
+Ce tutoriel détaille l'utilisation de l'image de conteneur du code Ovito téléchargeable à [cette adresse](https://www.apptainer-images.diamond.fr/ovito). En suivant ce lien, vous récupérez une image Apptainer (format de fichier `.sif`) qui vous permattra de créer des conteneurs à même de faire tourner Ovito.
 
 Pour plus d'informations sur les conteneurs Apptainer, veuillez consulter la [page dédiée](https://www.apptainer-images.diamond.fr/apptainer-containers/FR).
 
@@ -55,7 +55,7 @@ apptainer exec $HOME/apptainer-images/ovito.sif ovito C-diamond.cif
 
 L'exécution de cette commande fonctionne de la manière suivante :
 * création d'un conteneur à partir de l'image Apptainer `$HOME/apptainer-images/ovito.sif`.
-* exécution, au sein de ce conteneur, de la commande `ovito C-diamond.cif`. Une fenêtre Ovito apparaît alors, avec laquelle on peut interagir comme on le ferait normalement si Ovito était installé sur notre machine..
+* exécution, au sein de ce conteneur, de la commande `ovito C-diamond.cif`. Une fenêtre Ovito apparaît alors, avec laquelle on peut interagir comme on le ferait normalement si Ovito était installé sur notre machine.
 * une fois que l'utilisation de l'application est terminée (c'est-à-dire quand on ferme la fenêtre Ovito), destruction du conteneur et libération des ressources.
 
 On peut répliquer ce même comportement avec `apptainer run` qui appelle directement la commande par défaut de l'image, `ovito`, à laquelle on peut adjoindre des arguments.
