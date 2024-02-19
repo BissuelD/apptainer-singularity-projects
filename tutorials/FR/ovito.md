@@ -53,7 +53,7 @@ Pour lancer une commande au sein d'un conteneur Apptainer, on peut utiliser `app
 apptainer exec $HOME/apptainer-images/ovito.sif ovito C-diamond.cif
 ```
 > [!NOTE]
-> Il est possible que cette commande ne fonctionne pas sur votre machine personnelle ; c'est très probablement parce que le conteneur ne peut pas accéder aux ressources graphiques de votre machine. pour résoudre ce problème, veuillez vous référer à la [section suivante](###partage-des-ressources-graphiques).
+> Il est possible que cette commande ne fonctionne pas sur votre machine personnelle ; c'est très probablement parce que le conteneur ne peut pas accéder aux ressources graphiques de votre machine. pour résoudre ce problème, veuillez vous référer à la [section suivante](#partage-des-ressources-graphiques).
 
 L'exécution de cette commande fonctionne de la manière suivante :
 * création d'un conteneur à partir de l'image Apptainer `$HOME/apptainer-images/ovito.sif`.
