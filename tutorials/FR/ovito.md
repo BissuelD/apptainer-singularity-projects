@@ -38,7 +38,7 @@ Pour exécuter Ovito sans aucune conteneurisation, on utiliserait la commande :
 ```
 ovito <input.file.1> <input.file.2> ...
 ```
-où les fichiers d'entrée `input.file.X` sont optionnels et permettent de charger la ou les configurations que l'on veut afficher directement au lancement de l'application.
+où les fichiers d'entrée `input.file.*` sont optionnels et permettent de charger la ou les configurations que l'on veut afficher directement au lancement de l'application.
 
 Avec Apptainer, le fonctionnement est similaire, à quelques détails près :
 * il faut appeler Apptainer pour lancer le conteneur (une ligne de commande).
@@ -52,8 +52,6 @@ Pour lancer une commande au sein d'un conteneur Apptainer, on peut utiliser `app
 ```
 apptainer exec $HOME/apptainer-images/ovito.sif ovito C-diamond.cif
 ```
-> [!NOTE]
-> Il est possible que cette commande ne fonctionne pas sur votre machine personnelle ; c'est très probablement parce que le conteneur ne peut pas accéder aux ressources graphiques de votre machine. pour résoudre ce problème, veuillez vous référer à la [section suivante](#partage-des-ressources-graphiques).
 
 L'exécution de cette commande fonctionne de la manière suivante :
 * création d'un conteneur à partir de l'image Apptainer `$HOME/apptainer-images/ovito.sif`.
@@ -70,18 +68,79 @@ On peut enfin appeler directement l'image comme un exécutable, ce qui est stric
 $HOME/apptainer-images/ovito.sif POSCAR_Si-diamond
 ```
 
-### Partage des ressources graphiques
-TEXT
+### Isolation entre le conteneur et la machine hôte
+Par défaut, Apptainer n'isole pas totalement le conteneur du système de la machine hôte ; pour une isolation partielle ou totale, il faut utiliser respectivement les flags `--no-mount` ou `--no-home` et `--containall` (voir [ce lien](https://www.apptainer-images.diamond.fr/apptainer-tutorial%isolation/FR) pour plus d'informations). Dans le cas où l'option `--containall` est activée, nous rencontrons deux difficultés.
 
-### Isolation et accès aux fichiers
-TEXT
+#### Partage des ressources graphiques
+D'une part, il est possible qu'un message d'erreur apparaisse, vous informant que l'un des plugins de la librairie (`qt.qpa.xcb`), ne parvient pas à se connecter à vos ressources d'affichage.
+```
+apptainer run --containall $HOME/apptainer-images/ovito.sif 
+[...]
+qt.qpa.xcb: could not connect to display 
+[...]
+Aborted
+```
+
+Il ne s'agit pas d'une incompatibilité entre votre machine et le conteneur : ce dernier tente en fait de se connecter aux mauvaises ressources graphiques. Cette tentative de connexion est guidée par la variable d'environnement `$DISPLAY`, et l'erreur vient du fait que la valeur que prend cette variable au sein du conteneur ne correspond pas à celle qu'elle prend sur votre machine. Ce problème est directement dû à l'isolation totale entre le conteneur et la machine hôte, puisque dans ce cas précis aucune variable d'environnement de votre machine n'est transmise au conteneur par Apptainer.
+
+Pour contourner ce problème, il suffit de préciser à la commande `apptainer run` (ou `apptainer exec`) quelle valeur attribuer à cette variable d'environnement au sein du conteneur. Pour cela, on peut recourir au flag `--env <variable>=<valeur>`, comme suit :
+```
+apptainer run --containall --env DISPLAY=$DISPLAY $HOME/apptainer-images/ovito.sif
+```
+
+#### Accès aux fichiers
+D'autre part, le répertoire contenant les fichiers d'entrée n'est pas accessible dans le conteneur !
+```
+apptainer run --containall --env DISPLAY=$DISPLAY $HOME/apptainer-images/ovito.sif MD/SiC.*.lmp
+[...]
+ERROR: File does not exist: MD/SiC.0000.lmp
+```
+
+Il faut alors monter manuellement le répertoire courant (`$PWD`) avec le flag `--bind` au répertoire où l'on se trouve par défaut dans le conteneur (`$HOME`). Par exemple :
+```
+apptainer run --containall --bind $PWD:$HOME \ # On monte le répertoire courant au $HOME du conteneur.
+  $HOME/apptainer-images/ovito.sif MD/SiC.*.lmp
+```
+dans le cas où les fichiers d'entrée d'Ovito (dans un sous-dossier `MD/`) se situent dans le répertoire courant (`$PWD`).
+
+>[!NOTE]
+> Notons bien que dans le cas où les flags `--containall` et `--bind` sont utilisés ensemble, seuls le contenu des répertoires explicitement montés au sein du conteneur peut être chargé dans Ovito. De même, dans les cas où l'on souhaite exporter notre travail dans un fichier de configuration, ces options nous contraignent à exporter uniquement dans les répertoires explicitement montés, sous peine de ne pas récupérer les fichiers à la destruction du conteneur si l'on écrit dans des répertoires non partagés.
 
 ### Afficher l'aide
+Pour afficher le message d'aide du conteneur (on suppose l'image stockée sous `$HOME/apptainer-images/ovito.sif`) :
+```
+apptainer run-help $HOME/apptainer-images/ovito.sif
+```
+
+Pour afficher les méta-données du conteneur (propriétaire du code, version, auteur de l'image, ...) :
+```
+apptainer inspect $HOME/apptainer-images/ovito.sif
+```
 
 ## Exercices
 
 ### Exercice 1
+Comment utiliser l'image de conteneur pour ouvrir Ovito ?
+
+> **Données**
+> * L'image est située au chemin suivant : `$HOME/apptainer-images/ovito.sif`
+> * On ne souhaite pas dans un premier temps spécifier quel fichier de configuration charger, mais l'on souhaite pouvoir les ouvrir plus tard à travers l'interface graphique d'Ovito, sans savoir *a priori* où elles sont localisées sur notre machine.
+
+Réponses possibles :
+* `apptainer exec $HOME/apptainer-images/ovito.sif ovito`
+* ou `apptainer run $HOME/apptainer-images/ovito.sif`
+* ou `./$HOME/apptainer-images/ovito.sif`
+On note qu'on ne spécifie pas de fichier d'entrée, et qu'on ne recourt à aucune isolation (pas de flag `--containall`) pour pouvoir accéder à notre arborescence de fichiers au sein du conteneur.
 
 ### Exercice 2
+Comment visualiser uniquement les configurations antérieures au 100ème pas d'un calcul de dynamique moléculaire avec l'image de conteneur Ovito ?
 
-### Exercice 3
+> **Données**
+> * L'image est située au chemin suivant : `$HOME/apptainer-images/ovito.sif`
+> * Les fichiers de configuration du calcul de dynamique moléculaire nous intéressant sont situés dans `$PWD/MD` sur la machine hôte.
+> * Les fichiers de configuration sont nommés `SiC.XXXX.lmp` (la première configuration est `SiC.0000.lmp` et la 425ème est `SiC.0425.lmp`, par exemple).
+> * Choix libre pour l'isolation entre le conteneur et la machine hôte.
+
+Exemples de réponses possibles :
+* `apptainer exec $HOME/apptainer-images/ovito.sif ovito MD/SiC.00*.lmp`
+* ou `apptainer run --containall --env DISPLAY=$DISPLAY --bind $PWD:$HOME $HOME/apptainer-images/ovito.sif MD/SiC.00*.lmp`
