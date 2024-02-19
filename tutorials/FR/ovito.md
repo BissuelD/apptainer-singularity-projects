@@ -48,13 +48,35 @@ Avec Apptainer, le fonctionnement est similaire, à quelques détails près :
 Chacun de ces points est détaillé dans l'une des sections suivantes.
 
 ### Lancer le conteneur Ovito avec Apptainer
-TEXT
+Pour lancer une commande au sein d'un conteneur Apptainer, on peut utiliser `apptainer exec <nom de l'image> <commande>`, à laquelle on peut adjoindre des options que l'on détaillera dans les parties suivantes. Dans notre cas, où l'image est située au chemin `$HOME/apptainer-images/ovito.sif`, et où la commande est de la forme `ovito C-diamond.cif` avec le fichier de configuration atomique `C-diamond.cif` dans le répertoire courant, on peut donc faire :
+```
+apptainer exec $HOME/apptainer-images/ovito.sif ovito C-diamond.cif
+```
+> [!NOTE]
+> Il est possible que cette commande ne fonctionne pas sur votre machine personnelle ; c'est très probablement parce que le conteneur ne peut pas accéder aux ressources graphiques de votre machine. pour résoudre ce problème, veuillez vous référer à la [section suivante](###partage-des-ressources-graphiques).
+
+L'exécution de cette commande fonctionne de la manière suivante :
+* création d'un conteneur à partir de l'image Apptainer `$HOME/apptainer-images/ovito.sif`.
+* exécution, au sein de ce conteneur, de la commande `ovito C-diamond.cif`. Une fenêtre Ovito apparaît alors, avec laquelle on peut interagir comme on le ferait normalement si Ovito était installé sur notre machine..
+* une fois que l'utilisation de l'application est terminée (c'est-à-dire quand on ferme la fenêtre Ovito), destruction du conteneur et libération des ressources.
+
+On peut répliquer ce même comportement avec `apptainer run` qui appelle directement la commande par défaut de l'image, `ovito`, à laquelle on peut adjoindre des arguments.
+```
+apptainer run $HOME/apptainer-images/ovito.sif C-diamond.cif # la commande "ovito" est implicitement appellée.
+```
+
+On peut enfin appeler directement l'image comme un exécutable, ce qui est strictement identique à l'utilisation de `apptainer run` (pour la forme, changeons de fichier de configuration).
+```
+$HOME/apptainer-images/ovito.sif POSCAR_Si-diamond
+```
 
 ### Partage des ressources graphiques
 TEXT
 
 ### Isolation et accès aux fichiers
 TEXT
+
+### Afficher l'aide
 
 ## Exercices
 
