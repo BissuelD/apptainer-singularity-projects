@@ -15,9 +15,10 @@ mv ovito.sif $HOME/apptainer-images/ovito.sif
 ```
 
 To illustrate the operation of the visualization program, a set of atomic position files readable with Ovito are available as an archive via [this link](https://www.tutoriels.diamond.fr/ovito-inputs). This archive contains the following files:
-* `C-diamond.cif` which contains positions of Carbon atoms forming a diamond structure in Crystallographic Information File format, one of the standard text file formats for storing information about crystal structures.
+* `C-diamond.cif` which contains positions of Carbon atoms forming a diamond structure in the *Crystallographic Information File* format, one of the standard text file formats for storing information about crystal structures.
 * `POSCAR_Si-diamond` which is a file containing positions of another diamond structure, this time for Silicon atoms. The format of this file is used by the `VASP`, simulation code, very popular for studying the electronic structure of materials at the quantum scale.
 * a set of `SiC.*.lmp` files contained in a subfolder `MD`. These files, in the format used by the classical atomistic simulation code `LAMMPS`, track the evolution of a Silicon/Carbon hybrid system during a molecular dynamics calculation.
+
 In this tutorial, we will assume that the input files contained in this archive are in the current directory:
 ```
 tar -xzf DIAMOND-tutorial.tar.gz # Extracts the content of the archive, creates ./tutorial
@@ -25,7 +26,7 @@ cd ./tutorial
 ```
 
 ## TL; DR One liner command
-PFor those in a hurry, here's how to launch the Ovito visualization tool using the container image (previously downloaded and located at `$HOME/apptainer-images/ovito.sif`).  In case the current directory contains an input file readable by Ovito:
+For those in a hurry, here's how to launch the Ovito visualization tool using the container image (previously downloaded and located at `$HOME/apptainer-images/ovito.sif`).  In case the current directory contains an input file readable by Ovito:
 ```
 apptainer run $HOME/apptainer-images/ovito.sif <input.file>
 ```
@@ -41,8 +42,8 @@ where the input files`input.file.*` are optional and allow loading the configura
 
 With Apptainer, the operation is similar, with a few differences:
 * Apptainer must be called to launch the container (a command line).
-* if one wishes to isolate the container from our machine, then it must be ensured that access to the files to be loaded into Ovito is possible (two options in the previous command line).
-* it has to be enforced, in such cases, that the container has access to the graphical resources of your machine (another option).
+* if one wishes to isolate the container from their machine, then it must be ensured that access to the files to be loaded into Ovito is possible (two options in the previous command line).
+* it has to be enforced, in such cases, that the container has access to the graphical resources of the host machine (another option).
 
 
 Each of these points is detailed in the following sections.
@@ -55,12 +56,12 @@ apptainer exec $HOME/apptainer-images/ovito.sif ovito C-diamond.cif
 
 The execution of this command works as follows:
 * creation of a container from the Apptainer image `$HOME/apptainer-images/ovito.sif`.
-* execution, within this container, of the command `ovito C-diamond.cif`. An Ovito window then appears, with which one can interact as one would normally if Ovito were installed on our machine.
+* execution, within this container, of the command `ovito C-diamond.cif`. An Ovito window then appears, with which one can interact as one would normally if Ovito were installed on their machine.
 * once the application usage is finished (i.e., when the Ovito window is closed), destruction of the container and release of resources.
 
 The same behavior can be replicated with `apptainer run` which directly calls the default command of the image, `ovito`, to which arguments can be added.
 ```
-apptainer run $HOME/apptainer-images/ovito.sif C-diamond.cif # la commande "ovito" est implicitement appellée.
+apptainer run $HOME/apptainer-images/ovito.sif C-diamond.cif # the "ovito" command is implicitely called.
 ```
 
 Finally, one can directly call the image as an executable, which is strictly identical to using `apptainer run` (for variety, let's change the configuration file).
@@ -69,7 +70,7 @@ $HOME/apptainer-images/ovito.sif POSCAR_Si-diamond
 ```
 
 ### Isolation entre le conteneur et la machine hôte
-y default, Apptainer does not fully isolate the container from the host system. One can either have partial or total isolation using respectively the flags `--no-mount` or `--no-home` and `--containall` (see [this link](https://www.apptainer-images.diamond.fr/apptainer-tutorial%isolation/EN) for more information).  In case the `--containall` option is activated, we encounter two difficulties.
+By default, Apptainer does not fully isolate the container from the host system. One can either have partial or total isolation using respectively the flags `--no-mount` or `--no-home` and `--containall` (see [this link](https://www.apptainer-images.diamond.fr/apptainer-tutorial%isolation/EN) for more information).  In case the `--containall` option is activated, we encounter two difficulties.
 
 #### Sharing Graphical Resources
 On one hand, it is possible that an error message appears, informing you that one of the library plugins (`qt.qpa.xcb`), fails to connect to your display resources.
@@ -103,7 +104,7 @@ You then need to manually mount the current directory (`$PWD`) to the directory 
 apptainer run --containall --bind $PWD:$HOME \ # Mount the current directory to $HOME in the container.
   $HOME/apptainer-images/ovito.sif MD/SiC.*.lmp
 ```
-n case the Ovito input files (in a `MD/` subfolder) are located in the current directory (`$PWD`).
+in case the Ovito input files (in a `MD/` subfolder) are located in the current directory (`$PWD`).
 
 >[!NOTE]
 > Note that when the `--containall` and `--bind` flags are used together, only the contents of directories explicitly mounted within the container can be loaded into Ovito. Similarly, in cases where we want to export our work to a configuration file, these options require us to export only to explicitly mounted directories, otherwise we risk not retrieving the files when the container is destroyed if we write to unshared directories.

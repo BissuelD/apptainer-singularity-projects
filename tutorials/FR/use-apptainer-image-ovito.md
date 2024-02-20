@@ -43,7 +43,7 @@ où les fichiers d'entrée `input.file.*` sont optionnels et permettent de charg
 Avec Apptainer, le fonctionnement est similaire, à quelques détails près :
 * il faut appeler Apptainer pour lancer le conteneur (une ligne de commande).
 * si on souhaite isoler le conteneur de notre machine, alors il faut s'assurer de pouvoir accéder aux fichiers que l'on souhaite charger dans Ovito (deux options dans la ligne de commande précedente).
-* il faut s'assurer, le cas échéant, que le conteneur a bien accès aux ressources graphiques de votre machine (une autre option).
+* il faut s'assurer, le cas échéant, que le conteneur a bien accès aux ressources graphiques de la machine hôte (une autre option).
 
 Chacun de ces points est détaillé dans les sections suivantes.
 
