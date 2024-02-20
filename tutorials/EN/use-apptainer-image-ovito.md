@@ -11,7 +11,7 @@ To quickly grasp the main Apptainer commands, you can refer to [this tutorial](h
 This image is a relocatable and renamable file, which is recommended to be placed in a dedicated directory for easy retrieval; this directory can be any, and for the purpose of this tutorial, we assume you have placed it in a directory named `$HOME/apptainer-images` :
 ```
 mkdir -p $HOME/apptainer-images
-mv lammps.sif $HOME/apptainer-images/ovito.sif
+mv ovito.sif $HOME/apptainer-images/ovito.sif
 ```
 
 To illustrate the operation of the visualization program, a set of atomic position files readable with Ovito are available as an archive via [this link](https://www.tutoriels.diamond.fr/ovito-inputs). This archive contains the following files:
@@ -20,14 +20,14 @@ To illustrate the operation of the visualization program, a set of atomic positi
 * a set of `SiC.*.lmp` files contained in a subfolder `MD`. These files, in the format used by the classical atomistic simulation code `LAMMPS`, track the evolution of a Silicon/Carbon hybrid system during a molecular dynamics calculation.
 In this tutorial, we will assume that the input files contained in this archive are in the current directory:
 ```
-tar -xzf DIAMOND-tutorial.tar.gz # Extrait le contenu de l'archive, créée ./tutorial
+tar -xzf DIAMOND-tutorial.tar.gz # Extracts the content of the archive, creates ./tutorial
 cd ./tutorial
 ```
 
 ## TL; DR One liner command
 PFor those in a hurry, here's how to launch the Ovito visualization tool using the container image (previously downloaded and located at `$HOME/apptainer-images/ovito.sif`).  In case the current directory contains an input file readable by Ovito:
 ```
-apptainer run --env DISPLAY=$DISPLAY $HOME/apptainer-images/ovito.sif <input.file>
+apptainer run $HOME/apptainer-images/ovito.sif <input.file>
 ```
 
 ## Details to use Ovito container
@@ -41,8 +41,9 @@ where the input files`input.file.*` are optional and allow loading the configura
 
 With Apptainer, the operation is similar, with a few differences:
 * Apptainer must be called to launch the container (a command line).
-* it must be ensured that the container has access to the graphical resources of your machine (an option in the previous command line).
-* if one wishes to isolate the container from our machine (another option), then it must be ensured that access to the files to be loaded into Ovito is possible.
+* if one wishes to isolate the container from our machine, then it must be ensured that access to the files to be loaded into Ovito is possible (two options in the previous command line).
+* it has to be enforced, in such cases, that the container has access to the graphical resources of your machine (another option).
+
 
 Each of these points is detailed in the following sections.
 
@@ -80,7 +81,9 @@ qt.qpa.xcb: could not connect to display
 Aborted
 ```
 
-This is not an incompatibility between your machine and the container: the latter is trying to connect to the wrong graphical resources. This connection attempt is guided by the `$DISPLAY` environment variable, and the error comes from the fact that the value this variable takes inside the container does not match the one it takes on your machine. This problem is directly due to the total isolation between the container and the host machine, since in this specific case, no environment variables from your machine are transmitted to the container by Apptainer.
+This is not an incompatibility between your machine and the container: the latter is trying to connect to the wrong graphical resources. This connection attempt is guided by the `$DISPLAY` environment variable, and the error comes from the fact that the value this variable takes inside the container does not match the one it takes on your machine.
+
+This problem is directly due to the total isolation between the container and the host machine, since in this specific case, no environment variables from your machine are transmitted to the container by Apptainer.
 
 To work around this problem, you simply need to specify to the `apptainer run` command (or `apptainer exec`) what value to assign to this environment variable within the container. For this, you can use the `--env <variable>=<valeur>` flag, as follows:
 ```
@@ -129,6 +132,7 @@ Possible answers:
 * `apptainer exec $HOME/apptainer-images/ovito.sif ovito`
 * or `apptainer run $HOME/apptainer-images/ovito.sif`
 * or `./$HOME/apptainer-images/ovito.sif`
+
 Note that we do not specify an input file, and we do not use any isolation (no `--containall` flag) to be able to access our file tree within the container.
 
 ### Exercise 2

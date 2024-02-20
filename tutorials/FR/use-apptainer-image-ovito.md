@@ -2,7 +2,7 @@
 
 En préalable de ces explications, il est nécessaire d'avoir installé Apptainer sur votre machine ; voir [ce lien](https://www.apptainer-images.diamond.fr/install-apptainer/FR) pour plus de détails.
 
-Ce tutoriel détaille l'utilisation de l'image de conteneur du code Ovito téléchargeable à [cette adresse](https://www.apptainer-images.diamond.fr/ovito). En suivant ce lien, vous récupérez une image Apptainer (format de fichier `.sif`) qui vous permattra de créer des conteneurs à même de faire tourner Ovito.
+Ce tutoriel détaille l'utilisation de l'image de conteneur du code Ovito téléchargeable à [cette adresse](https://www.apptainer-images.diamond.fr/ovito). En suivant ce lien, vous récupérez une image Apptainer (format de fichier `.sif`) qui vous permettra de créer des conteneurs à même de faire tourner Ovito.
 
 Pour plus d'informations sur les conteneurs Apptainer, veuillez consulter la [page dédiée](https://www.apptainer-images.diamond.fr/apptainer-containers/FR).
 
@@ -11,10 +11,10 @@ Pour rapidement s'approprier les principales commandes d'Apptainer, vous pouvez 
 Cette image est un fichier relocalisable et renommable, qu'il est recommandé de placer dans un répertoire dédié pour facilement la retrouver ; celui-ci peut-être quelconque, et dans le cadre de ce tutoriel nous assumerons que vous l'avez placée dans un répertoire nommé `$HOME/apptainer-images` :
 ```
 mkdir -p $HOME/apptainer-images
-mv lammps.sif $HOME/apptainer-images/ovito.sif
+mv ovito.sif $HOME/apptainer-images/ovito.sif
 ```
 
-Pour illustrer le fonctionnement du programme de visualisation, un jeu de fichiers de positions atomiques lisibles avec Ovito sont disponibles sous forme d'archive via [ce lien](https://www.tutoriels.diamond.fr/ovito-inputs). Cette archive contient les fichiers suivants :
+Pour illustrer le fonctionnement du programme de visualisation, un jeu de fichiers de positions atomiques lisibles avec Ovito est disponible sous forme d'archive via [ce lien](https://www.tutoriels.diamond.fr/ovito-inputs). Cette archive contient les fichiers suivants :
 * `C-diamond.cif` qui contient des positions d'atomes de Carbone formant une structure diamant au format *Crystallographic Information File*, l'un des formats de fichiers textes standards pour stocker les informations relatives à la structure de cristaux.
 * `POSCAR_Si-diamond` qui est un fichier de positions d'une autre structure diamant, cette fois-ci pour des atomes de Silicium. Le format de ce fichier est celui utilisé par le code de simulation `VASP`, très populaire pour pour étudier la structure électronique des matériaux à l'échelle quantique.
 * tout un jeu de fichiers `SiC.*.lmp` contenus dans un sous-dossier `MD`. Ces fichiers, au format utlisé par le code de simulation atomistique classique `LAMMPS`, retracent l'évolution d'un système hybride Silicium/Carbone au cours d'un calcul de dynamique moléculaire.
@@ -28,7 +28,7 @@ cd ./tutorial
 ## TL; DR Commande en une ligne
 Pour les personnes pressées, voici comment lancer l'outil de visualisation Ovito en utilisant l'image de conteneur (téléchargée au préalable et située à `$HOME/apptainer-images/ovito.sif`). Dans le cas où le répertoire courant contient un fichier d'entrée lisible par Ovito :
 ```
-apptainer run --env DISPLAY=$DISPLAY $HOME/apptainer-images/ovito.sif <input.file>
+apptainer run $HOME/apptainer-images/ovito.sif <input.file>
 ```
 
 ## Détail d'utilisation du conteneur Ovito
@@ -42,10 +42,10 @@ où les fichiers d'entrée `input.file.*` sont optionnels et permettent de charg
 
 Avec Apptainer, le fonctionnement est similaire, à quelques détails près :
 * il faut appeler Apptainer pour lancer le conteneur (une ligne de commande).
-* il faut s'assurer que le conteneur a bien accès aux ressources graphiques de votre machine (une option dans la ligne de commande précedente).
-* si on souhaite isoler le conteneur de notre machine (une autre option), alors il faut s'assurer de pouvoir accéder aux fichiers que l'on souhaite charger dans Ovito.
+* si on souhaite isoler le conteneur de notre machine, alors il faut s'assurer de pouvoir accéder aux fichiers que l'on souhaite charger dans Ovito (deux options dans la ligne de commande précedente).
+* il faut s'assurer, le cas échéant, que le conteneur a bien accès aux ressources graphiques de votre machine (une autre option).
 
-Chacun de ces points est détaillé dans l'une des sections suivantes.
+Chacun de ces points est détaillé dans les sections suivantes.
 
 ### Lancer le conteneur Ovito avec Apptainer
 Pour lancer une commande au sein d'un conteneur Apptainer, on peut utiliser `apptainer exec <nom de l'image> <commande>`, à laquelle on peut adjoindre des options que l'on détaillera dans les parties suivantes. Dans notre cas, où l'image est située au chemin `$HOME/apptainer-images/ovito.sif`, et où la commande est de la forme `ovito C-diamond.cif` avec le fichier de configuration atomique `C-diamond.cif` dans le répertoire courant, on peut donc faire :
@@ -81,7 +81,9 @@ qt.qpa.xcb: could not connect to display
 Aborted
 ```
 
-Il ne s'agit pas d'une incompatibilité entre votre machine et le conteneur : ce dernier tente en fait de se connecter aux mauvaises ressources graphiques. Cette tentative de connexion est guidée par la variable d'environnement `$DISPLAY`, et l'erreur vient du fait que la valeur que prend cette variable au sein du conteneur ne correspond pas à celle qu'elle prend sur votre machine. Ce problème est directement dû à l'isolation totale entre le conteneur et la machine hôte, puisque dans ce cas précis aucune variable d'environnement de votre machine n'est transmise au conteneur par Apptainer.
+Il ne s'agit pas d'une incompatibilité entre votre machine et le conteneur : ce dernier tente en fait de se connecter aux mauvaises ressources graphiques. Cette tentative de connexion est guidée par la variable d'environnement `$DISPLAY`, et l'erreur vient du fait que la valeur que prend cette variable au sein du conteneur ne correspond pas à celle qu'elle prend sur votre machine.
+
+Ce problème est directement dû à l'isolation totale entre le conteneur et la machine hôte, puisque dans ce cas précis aucune variable d'environnement de votre machine n'est transmise au conteneur par Apptainer.
 
 Pour contourner ce problème, il suffit de préciser à la commande `apptainer run` (ou `apptainer exec`) quelle valeur attribuer à cette variable d'environnement au sein du conteneur. Pour cela, on peut recourir au flag `--env <variable>=<valeur>`, comme suit :
 ```
@@ -104,7 +106,7 @@ apptainer run --containall --bind $PWD:$HOME \ # On monte le répertoire courant
 dans le cas où les fichiers d'entrée d'Ovito (dans un sous-dossier `MD/`) se situent dans le répertoire courant (`$PWD`).
 
 >[!NOTE]
-> Notons bien que dans le cas où les flags `--containall` et `--bind` sont utilisés ensemble, seuls le contenu des répertoires explicitement montés au sein du conteneur peut être chargé dans Ovito. De même, dans les cas où l'on souhaite exporter notre travail dans un fichier de configuration, ces options nous contraignent à exporter uniquement dans les répertoires explicitement montés, sous peine de ne pas récupérer les fichiers à la destruction du conteneur si l'on écrit dans des répertoires non partagés.
+> Notons bien que dans le cas où les flags `--containall` et `--bind` sont utilisés ensemble, seul le contenu des répertoires explicitement montés au sein du conteneur peut être chargé dans Ovito. De même, dans les cas où l'on souhaite exporter notre travail dans un fichier de configuration, ces options nous contraignent à exporter uniquement dans les répertoires explicitement montés, sous peine de ne pas récupérer les fichiers à la destruction du conteneur si l'on écrit dans des répertoires non partagés.
 
 ### Afficher l'aide
 Pour afficher le message d'aide du conteneur (on suppose l'image stockée sous `$HOME/apptainer-images/ovito.sif`) :
@@ -130,6 +132,7 @@ Réponses possibles :
 * `apptainer exec $HOME/apptainer-images/ovito.sif ovito`
 * ou `apptainer run $HOME/apptainer-images/ovito.sif`
 * ou `./$HOME/apptainer-images/ovito.sif`
+
 On note qu'on ne spécifie pas de fichier d'entrée, et qu'on ne recourt à aucune isolation (pas de flag `--containall`) pour pouvoir accéder à notre arborescence de fichiers au sein du conteneur.
 
 ### Exercice 2
