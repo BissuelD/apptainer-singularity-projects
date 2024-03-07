@@ -1,0 +1,121 @@
+Bootstrap: docker
+From: debian:stable-slim
+Stage: devel
+
+%files
+    $HOME/Documents/softs/lammps/LAMMPS_ML_POTENTIALS/mlip-2-master.tar.gz /opt/mlip-2-master.tar.gz
+    $HOME/Documents/softs/lammps/LAMMPS_ML_POTENTIALS/interface-lammps-mlip-2-master.tar.gz /opt/interface-lammps-mlip-2-master.tar.gz
+    $HOME/Documents/softs/lammps/LAMMPS_ML_POTENTIALS/lammps-stable_2Aug2023_update2.tar.gz /opt/lammps-stable_2Aug2023_update2.tar.gz
+
+%post
+    # Libraries
+    # LAMMPS utils
+    apt-get update -y
+    apt-get -y install software-properties-common gpg-agent --no-install-recommends
+    apt-get install -y      \
+        apt-utils           \
+        build-essential
+    #add-apt-repository -y ppa:openkim/latest
+    apt-get update -y
+    apt-get upgrade -y
+    # apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libkim-api-dev openkim-models libpython3.6 \
+    #     hdf5-tools ffmpeg less libc6 libevent-2.1-7 libevent-pthreads-2.1-7 libexpat1 libfftw3-double3 libgcc-s1 libgomp1 libhwloc15  \
+    #     libjpeg-dev libltdl7 libopenmpi3 libpng16-16 libpython3.8 libstdc++6 libudev1 libvoro++1 libzstd1 zlib1g libreadline8      \
+    #     mpi-default-bin python3-dev python3-pip python3-pkg-resources python3-setuptools rsync ssh vim-nox valgrind gdb zstd          \
+    #     libkim-api-dev openkim-models libopenmpi-dev gfortran && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libpython3.6 \
+        hdf5-tools ffmpeg less libc6 libevent-2.1-7 libevent-pthreads-2.1-7 libexpat1 libfftw3-double3 libgcc-s1 libgomp1 libhwloc15  \
+        libjpeg-dev libltdl7 libopenmpi3 libpng16-16 libpython3.8 libstdc++6 libudev1 libvoro++1 libzstd1 zlib1g libreadline8      \
+        mpi-default-bin python3-dev python3-pip python3-pkg-resources python3-setuptools rsync ssh vim-nox valgrind gdb zstd          \
+        libopenmpi-dev gfortran
+
+    # Extracting sources
+    cd /opt
+    # MLIP + compilation
+    tar -xzf mlip-2-master.tar.gz
+    rm mlip-2-master.tar.gz
+    cd mlip-2-master
+    ./configure
+    make -j4 libinterface 
+    
+    # LAMMPS
+    cd /opt
+    tar -xzf lammps-stable_2Aug2023_update2.tar.gz
+    mv lammps-stable_2Aug2023_update2 mylammps
+    rm lammps-stable_2Aug2023_update2.tar.gz
+    
+    # Interface
+    cd /opt
+    tar -xzf interface-lammps-mlip-2-master.tar.gz
+    rm interface-lammps-mlip-2-master.tar.gz
+    cd interface-lammps-mlip-2-master
+    cp ../mlip-2-master/lib/lib_mlip_interface.a .
+    echo "make yes-most" >> ./preinstall.sh
+    ./preinstall.sh ../mylammps
+    ./install.sh ../mylammps mpi    
+
+%test
+    /opt/interface-lammps-mlip-2-master/lmp_mpi -h
+
+Bootstrap: docker
+From: debian:stable-slim
+Stage: final
+
+%files from devel
+    /opt/interface-lammps-mlip-2-master/lmp_mpi /usr/local/bin/lmp_mpi
+    #/opt/mylammps /opt/mylammps
+
+%post
+    # Libraries
+    apt-get update -y
+    apt-get -y install software-properties-common gpg-agent --no-install-recommends
+    # add-apt-repository -y ppa:openkim/latest
+    apt-get update -y
+    apt-get upgrade -y
+    # apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libkim-api-dev openkim-models libpython3.6 \
+    #     hdf5-tools ffmpeg less libc6 libevent-2.1-7 libevent-pthreads-2.1-7 libexpat1 libfftw3-double3 libgcc-s1 libgomp1 libhwloc15  \
+    #     libjpeg-turbo8 libltdl7 libopenmpi3 libpng16-16 libpython3.8 libstdc++6 libudev1 libvoro++1 libzstd1 zlib1g libreadline8      \
+    #     mpi-default-bin python3-dev python3-pip python3-pkg-resources python3-setuptools rsync ssh vim-nox valgrind gdb zstd          \
+    #     libkim-api-dev openkim-models libopenmpi-dev && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libpython3.6 \
+        hdf5-tools ffmpeg less libc6 libevent-2.1-7 libevent-pthreads-2.1-7 libexpat1 libfftw3-double3 libgcc-s1 libgomp1 libhwloc15  \
+        libjpeg-dev libltdl7 libopenmpi3 libpng16-16 libpython3.8 libstdc++6 libudev1 libvoro++1 libzstd1 zlib1g libreadline8      \
+        mpi-default-bin python3-dev python3-pip python3-pkg-resources python3-setuptools rsync ssh vim-nox valgrind gdb zstd          \
+        libopenmpi-dev gfortran
+    rm -rf /var/lib/apt/lists/*
+
+
+    # Linking the executable
+    #cd /opt/interface-lammps-mlip-2-master
+    #ln -sf lmp_mpi /usr/local/bin/lmp_mpi
+
+%test
+    lmp_mpi -h
+
+%runscript
+    /usr/local/bin/lmp_mpi $*
+
+%help
+    This container embedds LAMMPS (2 August 2023 stable version, update 2) with OpenMPI support and
+    MLIP support (https://gitlab.com/ashapeev/interface-lammps-mlip-2).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", the main executable "lmp_mpi" will be called.
+    For more information about it, please use "apptainer run <this-image> -h"
+    or "apptainer exec <this-image> lmp_mpi -h".
+
+    If you want to specify MPI number of processes, please use
+    "apptainer exec <this-image> mpirun -np <N> lmp_mpi ...".
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+
+    Finally, default interatomic potentials provided with this version of LAMMPS are available within
+    the container with the correct environment variables set to allow LAMMPS to locate them at runtime 
+    (only used in the case where LAMMPS cannot locate the potential file in the location you specified).
+
+%labels
+    Owner Sandia Corporation
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 2 Aug 2023 stable update 2
+    Label LAMMPS_stable_2Aug2023_update2
+    EntryPoint https://www.lammps.org/
