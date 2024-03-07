@@ -1,0 +1,24 @@
+Bootstrap: docker
+From: python:3.9-slim
+
+%files
+	$HOME/Documents/softs/sourcecodes/deepmd-kit /home/app/dp
+
+%post
+	cd /home/app/dp
+	deepmd_source_dir=`pwd`
+	pip install tensorflow[and-cuda]
+	apt-get -y update
+	apt-get install -y build-essential git --no-install-recommends
+	cd $deepmd_source_dir
+	pip install .
+        cd $deepmd_source_dir/source
+	mkdir build
+	cd build
+	pip install -U cmake
+	cmake -DUSE_TF_PYTHON_LIBS=TRUE -DCMAKE_INSTALL_PREFIX=$deepmd_root ..
+        cd
+        rm -rf /home/app/dp
+
+%runscript
+	ls
