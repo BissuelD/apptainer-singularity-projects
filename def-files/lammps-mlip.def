@@ -15,7 +15,7 @@ Stage: devel
     apt-get install -y      \
         apt-utils           \
         build-essential
-    #add-apt-repository -y ppa:openkim/latest
+    # add-apt-repository -y ppa:openkim/latest
     apt-get update -y
     apt-get upgrade -y
     # apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libkim-api-dev openkim-models libpython3.6 \
@@ -63,20 +63,14 @@ Stage: final
 
 %files from devel
     /opt/interface-lammps-mlip-2-master/lmp_mpi /usr/local/bin/lmp_mpi
-    #/opt/mylammps /opt/mylammps
+    /opt/mylammps/potentials /usr/share/lammps/potentials
 
 %post
     # Libraries
     apt-get update -y
     apt-get -y install software-properties-common gpg-agent --no-install-recommends
-    # add-apt-repository -y ppa:openkim/latest
     apt-get update -y
     apt-get upgrade -y
-    # apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libkim-api-dev openkim-models libpython3.6 \
-    #     hdf5-tools ffmpeg less libc6 libevent-2.1-7 libevent-pthreads-2.1-7 libexpat1 libfftw3-double3 libgcc-s1 libgomp1 libhwloc15  \
-    #     libjpeg-turbo8 libltdl7 libopenmpi3 libpng16-16 libpython3.8 libstdc++6 libudev1 libvoro++1 libzstd1 zlib1g libreadline8      \
-    #     mpi-default-bin python3-dev python3-pip python3-pkg-resources python3-setuptools rsync ssh vim-nox valgrind gdb zstd          \
-    #     libkim-api-dev openkim-models libopenmpi-dev && rm -rf /var/lib/apt/lists/*
     apt-get install -y --no-install-recommends openmpi-bin python3 liblapack3 python3-venv libpython3.6 \
         hdf5-tools ffmpeg less libc6 libevent-2.1-7 libevent-pthreads-2.1-7 libexpat1 libfftw3-double3 libgcc-s1 libgomp1 libhwloc15  \
         libjpeg-dev libltdl7 libopenmpi3 libpng16-16 libpython3.8 libstdc++6 libudev1 libvoro++1 libzstd1 zlib1g libreadline8      \
@@ -84,10 +78,10 @@ Stage: final
         libopenmpi-dev gfortran
     rm -rf /var/lib/apt/lists/*
 
+%environment
+    export OMPI_MCA_plm_rsh_agent=
+    export LAMMPS_POTENTIALS=/usr/share/lammps/potentials
 
-    # Linking the executable
-    #cd /opt/interface-lammps-mlip-2-master
-    #ln -sf lmp_mpi /usr/local/bin/lmp_mpi
 
 %test
     lmp_mpi -h
