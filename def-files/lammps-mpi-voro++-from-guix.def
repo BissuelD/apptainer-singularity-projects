@@ -2,7 +2,7 @@ Bootstrap: localimage
 #From: /gnu/store/c2xq9p44b9klqrg5z5mmch44pywzh95k-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
 #From: /gnu/store/id6kvfkmlwriagfj0068af2153y8f069-mylammps_mpi-bash-openmpi-squashfs-pack.gz.squashfs
 # Version : stable_2Aug2023_update2
-From: /gnu/store/846384q2rafxfklyan8valaag0gwhhiz-bash-minimal-mylammps_mpi-openmpi-squashfs-pack.gz.squashfs
+From: /gnu/store/4d0xda6irv6h4kgq2wkgrbxpmjpya775-mylammps_mpi-bash-minimal-openmpi-squashfs-pack.gz.squashfs
 
 %files
     empty_file /etc/passwd # to remove warning about /etc/passwd
@@ -11,7 +11,7 @@ From: /gnu/store/846384q2rafxfklyan8valaag0gwhhiz-bash-minimal-mylammps_mpi-open
     $HOME/Documents/softs/lammps/lammps-stable_2Aug2023_update2/potentials/ /usr/share/lammps/potentials
 
 %environment
-    export OMPI_MCA_plm_rsh_agent=
+    #export OMPI_MCA_plm_rsh_agent=
     export LAMMPS_POTENTIALS=/usr/share/lammps/potentials
 
 %help
