@@ -1,0 +1,26 @@
+Bootstrap: localimage
+From: /gnu/store/ac6zddr0rj5yqj3an8abkvr6wrmaq2fk-myzeo++-bash-minimal-squashfs-pack.gz.squashfs
+
+%files
+    empty_file /etc/passwd # to remove warning about /etc/passwd
+    empty_file /etc/group  # to remove warning about /etc/group
+
+%help
+    This container embedds Zeo++ (version 0.3).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", the main executable "network" will be called.
+    Without any more arguments, the help message of the executable will show.
+
+    All other executables are available within the container in the PATH.
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+%labels
+    Owner University of California
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 0.3
+    Label zeo++-v0.3
+    EntryPoint http://www.zeoplusplus.org/
