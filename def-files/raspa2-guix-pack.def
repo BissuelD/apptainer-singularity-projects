@@ -1,0 +1,25 @@
+Bootstrap: localimage
+From: /gnu/store/mracpxvp1ya8hsnsdwif96jkv485xh26-myraspa2-bash-minimal-squashfs-pack.gz.squashfs
+
+%files
+    empty_file /etc/passwd # to remove warning about /etc/passwd
+    empty_file /etc/group  # to remove warning about /etc/group
+
+%help
+    This container embedds RASPA2 (version 2.0.48).
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", the main executable "simulate" will be called.
+    For more information about it, please use "apptainer run <this-image> -h"
+    or "apptainer exec <this-image> simulate -h".
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+%labels
+    Owner David Dubbeldam, Sofia Calero, Thijs Vlugt, Donald E. Ellis, and Randall Q. Snurr.
+    Author dylan.bissuel@univ-lyon1.fr
+    Version v2.0.48
+    Label RASPA2-v2.0.48
+    EntryPoint https://iraspa.org/raspa/
