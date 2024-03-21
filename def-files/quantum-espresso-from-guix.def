@@ -1,0 +1,27 @@
+Bootstrap: localimage
+From: /gnu/store/w41hmpbnjym39cmy9h89pql7wh23jnpb-myquantum-espresso-bash-minimal-openmpi-squashfs-pack.gz.squashfs
+
+%files
+    empty_file /etc/passwd # to remove warning about /etc/passwd
+    empty_file /etc/group  # to remove warning about /etc/group
+
+%help
+    This container embedds Quantum Espresso (version 7.3) with OpenMPI support.
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", one of QE executables, "pw.x", will be called.
+    You can also use "apptainer exec <this-image> <executable-name>" to select another executable.
+
+    If you want to specify MPI number of processes, please use
+    "apptainer exec <this-image> mpirun -np <N> lmp_mpi ...".
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+%labels
+    Owner CNR-IOM DEMOCRITOS National Simulation Center in Trieste 
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 7.3
+    MyLabel quantum-espresso-v-7.3
+    EntryPoint https://www.quantum-espresso.org/
