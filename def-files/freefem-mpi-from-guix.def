@@ -1,0 +1,30 @@
+Bootstrap: localimage
+From: /gnu/store/ckhr4yhcp3s1ndq48k514cksz9vcn46f-myfreefem-openmpi-bash-minimal-squashfs-pack.gz.squashfs
+
+%files
+    empty_file /etc/passwd # to remove warning about /etc/passwd
+    empty_file /etc/group  # to remove warning about /etc/group
+
+%help
+    This container embedds FreeFem++ (version 4.14) with OpenMPI support.
+    For more information about this image, please run "apptainer inspect <this-image>"
+
+    If you use "apptainer run <this-image>", the main executable "FreeFem++" will be called.
+    Without further arguments, the help message of the executable will display.
+
+    If you want to run another executable from the FreeFem++ suite, you can use
+    "apptainer exec <this-image> <executable-name>".
+
+    If you want to specify MPI number of processes, please use
+    "apptainer exec <this-image> mpirun -np <N> <executable-name> ...".
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+    However, please note almost no basic Linux command are available within the container 
+    (both for portability and security reasons).
+
+%labels
+    Owner Free Software Foundation, Inc.
+    Author dylan.bissuel@univ-lyon1.fr
+    Version 4.14
+    Label FreeFem-v4.14
+    EntryPoint https://freefem.org/
